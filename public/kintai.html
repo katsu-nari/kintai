@@ -183,6 +183,22 @@ textarea.field-input { height: 80px; resize: none; }
 .preview-btn { flex: 1; padding: 12px; font-size: 14px; font-family: inherit; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; }
 .btn-edit { background: var(--primary-light); color: var(--primary); }
 .btn-delete { background: #fdecea; color: var(--danger); }
+
+/* ── Employee management ─────────────── */
+.emp-add-card {
+  background: white; border-radius: var(--radius);
+  padding: 16px; margin-bottom: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+}
+.emp-item {
+  background: white; border-radius: var(--radius);
+  padding: 12px 16px; margin-bottom: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+  display: flex; align-items: center; gap: 12px;
+}
+.emp-no { font-size: 11px; color: var(--muted); min-width: 60px; }
+.emp-name { flex: 1; font-weight: bold; }
+.emp-del { background: none; border: none; color: var(--danger); font-size: 18px; cursor: pointer; padding: 4px 8px; }
 </style>
 </head>
 <body>
@@ -192,6 +208,7 @@ textarea.field-input { height: 80px; resize: none; }
   <div id="view-list" class="view active">
     <div class="app-header">
       <h1>勤　怠　届</h1>
+      <button class="header-btn" onclick="showView('employees')">従業員管理</button>
     </div>
     <div class="list-body">
       <div class="section-label">申請履歴</div>
@@ -219,6 +236,29 @@ textarea.field-input { height: 80px; resize: none; }
     </div>
   </div>
 
+  <!-- ══════════ EMPLOYEE VIEW ══════════ -->
+  <div id="view-employees" class="view">
+    <div class="app-header">
+      <h1>従業員名簿</h1>
+      <button class="header-btn" onclick="showView('list')">← 戻る</button>
+    </div>
+    <div class="list-body">
+      <div class="emp-add-card">
+        <div class="field-group">
+          <div class="field-label">社員番号</div>
+          <input type="text" class="field-input" id="new-empNo" placeholder="例: 001">
+        </div>
+        <div class="field-group">
+          <div class="field-label">氏名</div>
+          <input type="text" class="field-input" id="new-empName" placeholder="氏名を入力">
+        </div>
+        <button class="btn btn-primary" onclick="addEmployee()">＋ 追加</button>
+      </div>
+      <div class="section-label" style="margin-top:16px;">登録済み従業員</div>
+      <div id="emp-list"></div>
+    </div>
+  </div>
+
   <!-- ══════════ INPUT MODAL ══════════ -->
   <div class="modal-overlay" id="modal-overlay" onclick="overlayClick(event)">
     <div class="modal" id="modal">
@@ -235,14 +275,15 @@ textarea.field-input { height: 80px; resize: none; }
           <input type="date" class="field-input" id="f-appDate">
         </div>
 
-        <!-- 氏名 / 社員番号 -->
-        <div class="field-group">
-          <div class="field-label field-required">氏名</div>
-          <input type="text" class="field-input" id="f-name" placeholder="氏名を入力">
-        </div>
+        <!-- 社員番号（上）→ 氏名（下・自動入力） -->
         <div class="field-group">
           <div class="field-label">社員番号</div>
-          <input type="text" class="field-input" id="f-empNo" placeholder="社員番号を入力">
+          <input type="text" class="field-input" id="f-empNo" placeholder="社員番号を入力" oninput="lookupEmployee(this.value)">
+        </div>
+        <div class="field-group">
+          <div class="field-label field-required">氏名</div>
+          <input type="text" class="field-input" id="f-name" placeholder="氏名（番号入力で自動入力）">
+          <div class="field-hint" id="emp-hint"></div>
         </div>
 
         <!-- 区分 -->
@@ -354,18 +395,77 @@ function getEntries() {
 function saveEntries(list) {
   localStorage.setItem('kintai_entries', JSON.stringify(list));
 }
+function getEmployees() {
+  try { return JSON.parse(localStorage.getItem('kintai_employees') || '[]'); } catch { return []; }
+}
+function saveEmployees(list) {
+  localStorage.setItem('kintai_employees', JSON.stringify(list));
+}
 
 // ── Views ─────────────────────────────────
-function showList() {
+function showView(name) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.getElementById('view-list').classList.add('active');
-  renderList();
+  document.getElementById('view-' + name).classList.add('active');
+  if (name === 'list') renderList();
+  if (name === 'employees') renderEmployees();
 }
+function showList() { showView('list'); }
 function showPreview(id) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-preview').classList.add('active');
   currentPreviewId = id;
   renderPreview(id);
+}
+
+// ── Employee management ───────────────────
+function renderEmployees() {
+  const list = getEmployees();
+  const el = document.getElementById('emp-list');
+  if (!list.length) {
+    el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted);">登録された従業員がいません</div>';
+    return;
+  }
+  el.innerHTML = list.map((e, i) => `
+    <div class="emp-item">
+      <span class="emp-no">No.${e.empNo}</span>
+      <span class="emp-name">${e.name}</span>
+      <button class="emp-del" onclick="deleteEmployee(${i})">✕</button>
+    </div>`).join('');
+}
+function addEmployee() {
+  const empNo = document.getElementById('new-empNo').value.trim();
+  const name  = document.getElementById('new-empName').value.trim();
+  if (!empNo || !name) { alert('社員番号と氏名を入力してください'); return; }
+  const list = getEmployees();
+  if (list.find(e => e.empNo === empNo)) { alert('この社員番号はすでに登録されています'); return; }
+  list.push({ empNo, name });
+  saveEmployees(list);
+  document.getElementById('new-empNo').value = '';
+  document.getElementById('new-empName').value = '';
+  renderEmployees();
+}
+function deleteEmployee(index) {
+  if (!confirm('削除しますか？')) return;
+  const list = getEmployees();
+  list.splice(index, 1);
+  saveEmployees(list);
+  renderEmployees();
+}
+function lookupEmployee(empNo) {
+  const hint = document.getElementById('emp-hint');
+  const nameEl = document.getElementById('f-name');
+  if (!empNo.trim()) { hint.textContent = ''; return; }
+  const found = getEmployees().find(e => e.empNo === empNo.trim());
+  if (found) {
+    nameEl.value = found.name;
+    nameEl.style.background = '#f0fff4';
+    hint.textContent = '✓ ' + found.name + ' が見つかりました';
+    hint.style.color = '#2d7a2d';
+  } else {
+    nameEl.style.background = '';
+    hint.textContent = '※ 名簿に見つかりません（手動入力可）';
+    hint.style.color = 'var(--muted)';
+  }
 }
 
 // ── List rendering ────────────────────────
@@ -426,6 +526,9 @@ function openModal(id) {
   updateDaysHint();
   updateHoursHint();
 
+  const hint = document.getElementById('emp-hint');
+  if (hint) { hint.textContent = ''; }
+  document.getElementById('f-name').style.background = '';
   document.getElementById('modal-overlay').classList.add('open');
   document.getElementById('modal').scrollTop = 0;
 }

@@ -171,8 +171,9 @@ textarea.field-input { height: 80px; resize: none; }
 .doc-lbl { text-align: center; white-space: nowrap; width: 44px; background: #f8f8f8; font-size: 10px; }
 .doc-lbl-sm { text-align: center; white-space: nowrap; width: 38px; background: #f8f8f8; font-size: 9px; }
 .cat-all { line-height: 2; }
-.cat-item-disp { margin-right: 12px; }
-.cat-item-disp.selected { font-weight: bold; text-decoration: underline; }
+.cat-item-disp { margin-right: 12px; white-space: nowrap; }
+.cat-item-disp.selected { font-weight: bold; }
+.cat-circle { color: #c00; font-weight: bold; margin-right: 2px; }
 .period-lines { line-height: 2; }
 .reason-td { vertical-align: top; min-height: 56px; white-space: pre-wrap; }
 .mgr-td { width: 60px; vertical-align: top; text-align: center; font-size: 9px; }
@@ -199,6 +200,28 @@ textarea.field-input { height: 80px; resize: none; }
 .emp-no { font-size: 11px; color: var(--muted); min-width: 60px; }
 .emp-name { flex: 1; font-weight: bold; }
 .emp-del { background: none; border: none; color: var(--danger); font-size: 18px; cursor: pointer; padding: 4px 8px; }
+
+/* ── CSV view ────────────────────────── */
+.csv-body { padding: 12px 12px 80px; }
+.csv-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.csv-date-group { margin-bottom: 20px; }
+.csv-date-header {
+  font-size: 12px; font-weight: bold; color: var(--primary);
+  background: var(--primary-light); padding: 6px 12px;
+  border-radius: 6px; margin-bottom: 8px;
+  display: flex; align-items: center; gap: 8px;
+}
+.csv-row {
+  background: white; border-radius: 8px; padding: 10px 14px;
+  margin-bottom: 6px; display: flex; align-items: center; gap: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.07);
+}
+.csv-row.checked-row { opacity: .55; }
+.csv-row input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--primary); flex-shrink: 0; cursor: pointer; }
+.csv-row-body { flex: 1; min-width: 0; }
+.csv-row-main { font-size: 13px; font-weight: bold; }
+.csv-row-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.csv-checked-badge { font-size: 10px; background: #e6f4ea; color: #1e7e34; border-radius: 4px; padding: 2px 6px; white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -208,7 +231,10 @@ textarea.field-input { height: 80px; resize: none; }
   <div id="view-list" class="view active">
     <div class="app-header">
       <h1>勤　怠　届</h1>
-      <button class="header-btn" onclick="showView('employees')">従業員管理</button>
+      <div style="display:flex;gap:6px;">
+        <button class="header-btn" onclick="showView('csv')">CSV</button>
+        <button class="header-btn" onclick="showView('employees')">従業員管理</button>
+      </div>
     </div>
     <div class="list-body">
       <div class="section-label">申請履歴</div>
@@ -233,6 +259,21 @@ textarea.field-input { height: 80px; resize: none; }
         <button class="preview-btn btn-edit" id="btn-edit">編集</button>
         <button class="preview-btn btn-delete" id="btn-delete">削除</button>
       </div>
+    </div>
+  </div>
+
+  <!-- ══════════ CSV VIEW ══════════ -->
+  <div id="view-csv" class="view">
+    <div class="app-header">
+      <h1>CSV抽出</h1>
+      <button class="header-btn" onclick="showView('list')">← 戻る</button>
+    </div>
+    <div class="csv-body">
+      <div class="csv-toolbar">
+        <button class="btn btn-primary" style="padding:10px 20px;font-size:13px;flex:none;" onclick="exportCSV()">CSV出力</button>
+        <span style="font-size:11px;color:var(--muted);">チェックした申請を出力・✓済みにします</span>
+      </div>
+      <div id="csv-groups"></div>
     </div>
   </div>
 
@@ -344,7 +385,17 @@ textarea.field-input { height: 80px; resize: none; }
         <!-- 事由 -->
         <div class="field-group">
           <div class="field-label">事由</div>
-          <textarea class="field-input" id="f-reason" placeholder="事由を入力してください"></textarea>
+          <select class="field-input" id="f-reason-type" onchange="updateReasonUI()">
+            <option value="">選択してください</option>
+            <option value="私用の為">私用の為</option>
+            <option value="会社都合の為">会社都合の為</option>
+            <option value="事故渋滞の為">事故渋滞の為</option>
+            <option value="体調不良の為">体調不良の為</option>
+            <option value="その他">その他</option>
+          </select>
+          <div id="reason-other-wrap" style="display:none;margin-top:8px;">
+            <textarea class="field-input" id="f-reason-text" placeholder="その他の理由を入力してください"></textarea>
+          </div>
         </div>
 
         <!-- 区切り：所管情報 -->
@@ -408,6 +459,7 @@ function showView(name) {
   document.getElementById('view-' + name).classList.add('active');
   if (name === 'list') renderList();
   if (name === 'employees') renderEmployees();
+  if (name === 'csv') renderCSV();
 }
 function showList() { showView('list'); }
 function showPreview(id) {
@@ -510,9 +562,11 @@ function openModal(id) {
   document.getElementById('f-dateTo').value   = d ? d.dateTo : '';
   document.getElementById('f-timeFrom').value = d ? d.timeFrom : '';
   document.getElementById('f-timeTo').value   = d ? d.timeTo : '';
-  document.getElementById('f-substWork').value  = d ? d.substWork : '';
-  document.getElementById('f-substLeave').value = d ? d.substLeave : '';
-  document.getElementById('f-reason').value   = d ? d.reason : '';
+  document.getElementById('f-substWork').value   = d ? d.substWork : '';
+  document.getElementById('f-substLeave').value  = d ? d.substLeave : '';
+  document.getElementById('f-reason-type').value = d ? (d.reasonType || '') : '';
+  document.getElementById('f-reason-text').value = d ? (d.reasonText || '') : '';
+  updateReasonUI();
   document.getElementById('f-dept').value     = d ? d.dept : '岡山早島センター';
   document.getElementById('f-manager').value  = d ? d.manager : '';
   document.getElementById('f-staff').value    = d ? d.staff : '';
@@ -597,7 +651,8 @@ function submitForm() {
     timeTo:     document.getElementById('f-timeTo').value,
     substWork:  document.getElementById('f-substWork').value,
     substLeave: document.getElementById('f-substLeave').value,
-    reason:     document.getElementById('f-reason').value.trim(),
+    reasonType: document.getElementById('f-reason-type').value,
+    reasonText: document.getElementById('f-reason-text').value.trim(),
     dept:       document.getElementById('f-dept').value.trim(),
     manager:    document.getElementById('f-manager').value.trim(),
     staff:      document.getElementById('f-staff').value.trim(),
@@ -626,7 +681,8 @@ function renderPreview(id) {
 
   const catRow = [1,2,3,4,5,6,7,8,9,10,11].map(n => {
     const label = n === 11 && entry.otherText ? `11.その他（${entry.otherText}）` : `${n}.${CATS[n]}`;
-    return `<span class="cat-item-disp${n===catNo?' selected':''}">${label}</span>`;
+    const circle = n === catNo ? `<span class="cat-circle">○</span>` : `<span style="margin-right:4px;color:transparent;">○</span>`;
+    return `<span class="cat-item-disp${n===catNo?' selected':''}">${circle}${label}</span>`;
   }).join('');
 
   const substRow = (catNo === 5 || catNo === 6) ? `
@@ -666,7 +722,7 @@ function renderPreview(id) {
         </tr>
         <tr>
           <td class="doc-lbl">事&emsp;由</td>
-          <td class="reason-td" colspan="5">${escHtml(entry.reason || '')}</td>
+          <td class="reason-td" colspan="5">${escHtml(entry.reasonType === 'その他' ? (entry.reasonText || 'その他') : (entry.reasonType || entry.reason || ''))}</td>
           <td class="mgr-td">管理担当<br>${escHtml(entry.mgrCharge || '')}</td>
         </tr>
         <tr>
@@ -693,6 +749,101 @@ function deleteEntry(id) {
   if (!confirm('この申請を削除しますか？')) return;
   saveEntries(getEntries().filter(e => e.id !== id));
   showList();
+}
+
+// ── Reason UI ────────────────────────────
+function updateReasonUI() {
+  const val = document.getElementById('f-reason-type').value;
+  document.getElementById('reason-other-wrap').style.display = val === 'その他' ? 'block' : 'none';
+}
+
+// ── CSV ───────────────────────────────────
+function renderCSV() {
+  const entries = getEntries().sort((a,b) => b.appDate.localeCompare(a.appDate) || b.id - a.id);
+  const el = document.getElementById('csv-groups');
+  if (!entries.length) {
+    el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);">申請データがありません</div>';
+    return;
+  }
+  // Group by appDate
+  const groups = {};
+  entries.forEach(e => {
+    const d = e.appDate || '不明';
+    if (!groups[d]) groups[d] = [];
+    groups[d].push(e);
+  });
+  el.innerHTML = Object.entries(groups).map(([date, items]) => {
+    const rows = items.map(e => {
+      const catNo = parseInt(e.category);
+      const reason = e.reasonType === 'その他' ? (e.reasonText || 'その他') : (e.reasonType || e.reason || '');
+      const dateStr = e.dateFrom ? fmtDate(e.dateFrom) + (e.dateTo && e.dateTo !== e.dateFrom ? '〜' + fmtDate(e.dateTo) : '') : '';
+      return `
+        <div class="csv-row${e.checked ? ' checked-row' : ''}">
+          <input type="checkbox" data-id="${e.id}" ${e.checked ? 'checked' : ''}>
+          <div class="csv-row-body">
+            <div class="csv-row-main">${e.name || ''}　${catNo}.${CATS[catNo]}</div>
+            <div class="csv-row-sub">${dateStr ? dateStr + '　' : ''}${reason}</div>
+          </div>
+          ${e.checked ? '<span class="csv-checked-badge">✓ 出力済</span>' : ''}
+        </div>`;
+    }).join('');
+    const allChecked = items.every(e => e.checked);
+    return `
+      <div class="csv-date-group">
+        <div class="csv-date-header">
+          <input type="checkbox" ${allChecked ? 'checked' : ''} onchange="toggleDateGroup('${date}', this.checked)" style="width:16px;height:16px;accent-color:white;cursor:pointer;">
+          <span>申請日：${fmtDate(date)}</span>
+          <span style="font-size:10px;margin-left:auto;">${items.length}件</span>
+        </div>
+        ${rows}
+      </div>`;
+  }).join('');
+}
+
+function toggleDateGroup(date, checked) {
+  const entries = getEntries();
+  entries.forEach(e => { if (e.appDate === date) e.checked = checked; });
+  saveEntries(entries);
+  renderCSV();
+}
+
+function exportCSV() {
+  const entries = getEntries();
+  // Collect checked entries from checkboxes currently visible
+  const checkboxes = document.querySelectorAll('#csv-groups input[type=checkbox][data-id]');
+  const selectedIds = new Set();
+  checkboxes.forEach(cb => { if (cb.checked) selectedIds.add(parseInt(cb.dataset.id)); });
+  if (!selectedIds.size) { alert('出力する申請をチェックしてください'); return; }
+
+  const selected = entries.filter(e => selectedIds.has(e.id));
+  const header = ['申請日','社員番号','氏名','区分','期間開始','期間終了','日数','開始時刻','終了時刻','時間','事由','所管','所管長','担当','管理担当'];
+  const rows = selected.map(e => {
+    const reason = e.reasonType === 'その他' ? (e.reasonText || 'その他') : (e.reasonType || e.reason || '');
+    const days = calcDays(e.dateFrom, e.dateTo);
+    const hrs  = calcHours(e.timeFrom, e.timeTo);
+    return [
+      e.appDate, e.empNo || '', e.name || '',
+      `${e.category}.${CATS[e.category]}${e.otherText ? '（'+e.otherText+'）' : ''}`,
+      e.dateFrom || '', e.dateTo || '', days,
+      e.timeFrom || '', e.timeTo || '', hrs,
+      reason, e.dept || '', e.manager || '', e.staff || '', e.mgrCharge || ''
+    ].map(v => `"${String(v).replace(/"/g,'""')}"`).join(',');
+  });
+
+  const bom = '﻿';
+  const csv = bom + [header.join(','), ...rows].join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `勤怠届_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+
+  // Mark as checked
+  entries.forEach(e => { if (selectedIds.has(e.id)) e.checked = true; });
+  saveEntries(entries);
+  renderCSV();
 }
 
 // ── Helpers ───────────────────────────────

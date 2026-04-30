@@ -19,10 +19,12 @@
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 body { font-family: 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
 
+/* ── Layout ─────────────────────────── */
 .app { max-width: 600px; margin: 0 auto; min-height: 100dvh; position: relative; }
 .view { display: none; min-height: 100dvh; }
 .view.active { display: block; }
 
+/* ── Header ─────────────────────────── */
 .app-header {
   background: var(--primary);
   color: white;
@@ -35,8 +37,9 @@ body { font-family: 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif; backgrou
 .app-header h1 { font-size: 17px; letter-spacing: .25em; }
 .header-btn { background: none; border: 1px solid rgba(255,255,255,.5); color: white; border-radius: 6px; padding: 5px 12px; font-size: 12px; cursor: pointer; }
 
+/* ── List view ───────────────────────── */
 .list-body { padding: 16px 12px 88px; }
-.section-label { font-size: 11px; color: var(--muted); font-weight: bold; letter-spacing: .1em; margin: 8px 4px 8px; }
+.section-label { font-size: 11px; color: var(--muted); font-weight: bold; letter-spacing: .1em; margin: 8px 4px 8px; text-transform: uppercase; }
 .entry-card {
   background: white;
   border-radius: var(--radius);
@@ -60,6 +63,7 @@ body { font-family: 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif; backgrou
 .empty-icon { font-size: 48px; margin-bottom: 12px; }
 .empty-text { font-size: 14px; }
 
+/* ── FAB ────────────────────────────── */
 .fab {
   position: fixed;
   bottom: 24px; right: 20px;
@@ -77,6 +81,7 @@ body { font-family: 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif; backgrou
 }
 .fab:active { transform: scale(.93); }
 
+/* ── Modal ───────────────────────────── */
 .modal-overlay {
   display: none;
   position: fixed; inset: 0;
@@ -103,6 +108,7 @@ body { font-family: 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif; backgrou
 .modal-close:active { background: #eee; }
 .modal-body { padding: 16px; }
 
+/* ── Form fields ─────────────────────── */
 .field-group { margin-bottom: 18px; }
 .field-label { font-size: 11px; font-weight: bold; color: var(--muted); margin-bottom: 6px; letter-spacing: .05em; }
 .field-required::after { content: ' *'; color: #c0392b; }
@@ -119,6 +125,7 @@ textarea.field-input { height: 80px; resize: none; }
 .field-sep { color: var(--muted); font-size: 18px; flex-shrink: 0; }
 .field-hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
 
+/* ── Category chips ──────────────────── */
 .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .cat-radio { display: none; }
 .cat-chip {
@@ -132,18 +139,22 @@ textarea.field-input { height: 80px; resize: none; }
 .other-field { display: none; margin-top: 8px; }
 .other-field.visible { display: block; }
 
+/* ── Conditional fields ──────────────── */
 .cond-field { display: none; }
 .cond-field.visible { display: block; }
 
+/* ── Action buttons ──────────────────── */
 .modal-actions { display: flex; gap: 10px; margin-top: 24px; }
 .btn { flex: 1; padding: 14px; font-size: 15px; font-family: inherit; font-weight: bold; border-radius: 10px; border: none; cursor: pointer; transition: opacity .15s; }
 .btn:active { opacity: .8; }
 .btn-primary { background: var(--primary); color: white; }
 .btn-secondary { background: #eee; color: var(--text); }
 
+/* ── Preview ─────────────────────────── */
 #view-preview .app-header { background: #1a1a2e; }
 .preview-body { padding: 12px 10px 80px; }
 
+/* 勤怠届 doc */
 .kintai-doc {
   background: white;
   border-radius: var(--radius);
@@ -167,6 +178,7 @@ textarea.field-input { height: 80px; resize: none; }
 .mgr-td { width: 60px; vertical-align: top; text-align: center; font-size: 9px; }
 .doc-version { text-align: right; font-size: 7px; margin-top: 4px; color: #666; }
 
+/* ── Preview actions ─────────────────── */
 .preview-actions { display: flex; gap: 10px; margin-top: 12px; }
 .preview-btn { flex: 1; padding: 12px; font-size: 14px; font-family: inherit; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; }
 .btn-edit { background: var(--primary-light); color: var(--primary); }
@@ -176,8 +188,11 @@ textarea.field-input { height: 80px; resize: none; }
 <body>
 <div class="app">
 
+  <!-- ══════════ LIST VIEW ══════════ -->
   <div id="view-list" class="view active">
-    <div class="app-header"><h1>勤　怠　届</h1></div>
+    <div class="app-header">
+      <h1>勤　怠　届</h1>
+    </div>
     <div class="list-body">
       <div class="section-label">申請履歴</div>
       <div id="entry-list"></div>
@@ -189,6 +204,7 @@ textarea.field-input { height: 80px; resize: none; }
     <button class="fab" onclick="openModal()">＋</button>
   </div>
 
+  <!-- ══════════ PREVIEW VIEW ══════════ -->
   <div id="view-preview" class="view">
     <div class="app-header">
       <h1>勤　怠　届</h1>
@@ -203,6 +219,7 @@ textarea.field-input { height: 80px; resize: none; }
     </div>
   </div>
 
+  <!-- ══════════ INPUT MODAL ══════════ -->
   <div class="modal-overlay" id="modal-overlay" onclick="overlayClick(event)">
     <div class="modal" id="modal">
       <div class="modal-handle"></div>
@@ -211,10 +228,14 @@ textarea.field-input { height: 80px; resize: none; }
         <button class="modal-close" onclick="closeModal()">✕</button>
       </div>
       <div class="modal-body">
+
+        <!-- 申請日 -->
         <div class="field-group">
           <div class="field-label field-required">申請日</div>
           <input type="date" class="field-input" id="f-appDate">
         </div>
+
+        <!-- 氏名 / 社員番号 -->
         <div class="field-group">
           <div class="field-label field-required">氏名</div>
           <input type="text" class="field-input" id="f-name" placeholder="氏名を入力">
@@ -223,9 +244,11 @@ textarea.field-input { height: 80px; resize: none; }
           <div class="field-label">社員番号</div>
           <input type="text" class="field-input" id="f-empNo" placeholder="社員番号を入力">
         </div>
+
+        <!-- 区分 -->
         <div class="field-group">
           <div class="field-label field-required">区分</div>
-          <div class="cat-grid">
+          <div class="cat-grid" id="cat-grid">
             <input class="cat-radio" type="radio" name="cat" id="c1" value="1"><label class="cat-chip" for="c1">1. 有給休暇</label>
             <input class="cat-radio" type="radio" name="cat" id="c2" value="2"><label class="cat-chip" for="c2">2. 欠勤</label>
             <input class="cat-radio" type="radio" name="cat" id="c3" value="3"><label class="cat-chip" for="c3">3. 遅刻</label>
@@ -242,6 +265,8 @@ textarea.field-input { height: 80px; resize: none; }
             <input type="text" class="field-input" id="f-other" placeholder="その他の内容を入力">
           </div>
         </div>
+
+        <!-- 期間 -->
         <div class="field-group">
           <div class="field-label">期間（日付）</div>
           <div class="field-row">
@@ -251,6 +276,8 @@ textarea.field-input { height: 80px; resize: none; }
           </div>
           <div class="field-hint" id="days-hint"></div>
         </div>
+
+        <!-- 時間 -->
         <div class="field-group">
           <div class="field-label">時間</div>
           <div class="field-row">
@@ -260,6 +287,8 @@ textarea.field-input { height: 80px; resize: none; }
           </div>
           <div class="field-hint" id="hours-hint"></div>
         </div>
+
+        <!-- 振替（5/6選択時のみ） -->
         <div class="cond-field" id="subst-fields">
           <div class="field-group">
             <div class="field-label">振替出勤日</div>
@@ -270,18 +299,23 @@ textarea.field-input { height: 80px; resize: none; }
             <input type="date" class="field-input" id="f-substLeave">
           </div>
         </div>
+
+        <!-- 事由 -->
         <div class="field-group">
           <div class="field-label">事由</div>
           <textarea class="field-input" id="f-reason" placeholder="事由を入力してください"></textarea>
         </div>
-        <div style="border-top:1px solid var(--border);margin:20px 0 16px;padding-top:16px;">
-          <div class="field-label" style="font-size:12px;color:var(--primary);margin-bottom:12px;">▼ 所管情報</div>
+
+        <!-- 区切り：所管情報 -->
+        <div style="border-top: 1px solid var(--border); margin: 20px 0 16px; padding-top: 16px;">
+          <div class="field-label" style="font-size:12px; color: var(--primary); margin-bottom: 12px;">▼ 所管情報</div>
         </div>
+
         <div class="field-group">
           <div class="field-label">所管</div>
           <input type="text" class="field-input" id="f-dept" placeholder="所管名">
         </div>
-        <div class="field-row" style="gap:12px;margin-bottom:18px;">
+        <div class="field-row" style="gap:12px; margin-bottom:18px;">
           <div style="flex:1">
             <div class="field-label">所管長</div>
             <input type="text" class="field-input" id="f-manager" placeholder="氏名">
@@ -295,6 +329,7 @@ textarea.field-input { height: 80px; resize: none; }
           <div class="field-label">管理担当</div>
           <input type="text" class="field-input" id="f-mgrCharge" placeholder="管理担当者名">
         </div>
+
         <div class="modal-actions">
           <button class="btn btn-secondary" onclick="closeModal()">キャンセル</button>
           <button class="btn btn-primary" onclick="submitForm()">確　定</button>
@@ -303,153 +338,284 @@ textarea.field-input { height: 80px; resize: none; }
     </div>
   </div>
 
-</div>
+</div><!-- .app -->
 
 <script>
-const CATS=['','有給休暇','欠勤','遅刻','早退','振替出勤','振替休暇','打刻忘れ','私用外出','打刻修正','勤務時間変更','その他'];
-const CAT_ICONS=['','🌸','😷','⏰','🏃','🔄','🔁','⚠️','🚶','🔊','📅','📝'];
-let editingId=null;
-function getEntries(){try{return JSON.parse(localStorage.getItem('kintai_entries')||'[]');}catch{return[];}}
-function saveEntries(l){localStorage.setItem('kintai_entries',JSON.stringify(l));}
-function showList(){
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+const CATS = ['','有給休暇','欠勤','遅刻','早退','振替出勤','振替休暇','打刻忘れ','私用外出','打刻修正','勤務時間変更','その他'];
+const CAT_ICONS = ['','🌸','😷','⏰','🏃','🔄','🔁','⚠️','🚶','🖊️','📅','📝'];
+
+let editingId = null;
+let currentPreviewId = null;
+
+// ── Storage ──────────────────────────────
+function getEntries() {
+  try { return JSON.parse(localStorage.getItem('kintai_entries') || '[]'); } catch { return []; }
+}
+function saveEntries(list) {
+  localStorage.setItem('kintai_entries', JSON.stringify(list));
+}
+
+// ── Views ─────────────────────────────────
+function showList() {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-list').classList.add('active');
   renderList();
 }
-function showPreview(id){
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+function showPreview(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-preview').classList.add('active');
+  currentPreviewId = id;
   renderPreview(id);
 }
-function renderList(){
-  const entries=getEntries().sort((a,b)=>b.id-a.id);
-  const list=document.getElementById('entry-list');
-  const empty=document.getElementById('empty-state');
-  if(!entries.length){list.innerHTML='';empty.style.display='block';return;}
-  empty.style.display='none';
-  list.innerHTML=entries.map(e=>{
-    const n=parseInt(e.category);
-    const ds=e.dateFrom?fmtDate(e.dateFrom)+(e.dateTo&&e.dateTo!==e.dateFrom?' 〜 '+fmtDate(e.dateTo):''):'';
-    return`<div class="entry-card" onclick="showPreview(${e.id})"><div class="card-icon">${CAT_ICONS[n]||'📋'}</div><div class="card-body"><div class="card-cat">${n}. ${CATS[n]}${e.otherText?'（'+e.otherText+'）':''}</div><div class="card-meta">${e.name||'氏名未入力'} ／ ${fmtDate(e.appDate)}申請${ds?' ／ '+ds:''}</div></div><div class="card-arrow">›</div></div>`;
+
+// ── List rendering ────────────────────────
+function renderList() {
+  const entries = getEntries().sort((a,b) => b.id - a.id);
+  const list = document.getElementById('entry-list');
+  const empty = document.getElementById('empty-state');
+  if (!entries.length) {
+    list.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  list.innerHTML = entries.map(e => {
+    const catNo = parseInt(e.category);
+    const dateStr = e.dateFrom ? fmtDate(e.dateFrom) + (e.dateTo && e.dateTo !== e.dateFrom ? ' 〜 ' + fmtDate(e.dateTo) : '') : '';
+    return `
+    <div class="entry-card" onclick="showPreview(${e.id})">
+      <div class="card-icon">${CAT_ICONS[catNo] || '📋'}</div>
+      <div class="card-body">
+        <div class="card-cat">${catNo}. ${CATS[catNo]}${e.otherText ? '（'+e.otherText+'）' : ''}</div>
+        <div class="card-meta">${e.name || '氏名未入力'} ／ ${fmtDate(e.appDate)}申請${dateStr ? ' ／ ' + dateStr : ''}</div>
+      </div>
+      <div class="card-arrow">›</div>
+    </div>`;
   }).join('');
 }
-function openModal(id){
-  editingId=id||null;
-  const d=id?getEntries().find(e=>e.id===id):null;
-  document.getElementById('modal-title').textContent=id?'編集':'新規申請';
-  const today=new Date().toISOString().slice(0,10);
-  document.getElementById('f-appDate').value=d?d.appDate:today;
-  document.getElementById('f-name').value=d?d.name:'';
-  document.getElementById('f-empNo').value=d?d.empNo:'';
-  document.getElementById('f-dateFrom').value=d?d.dateFrom:'';
-  document.getElementById('f-dateTo').value=d?d.dateTo:'';
-  document.getElementById('f-timeFrom').value=d?d.timeFrom:'';
-  document.getElementById('f-timeTo').value=d?d.timeTo:'';
-  document.getElementById('f-substWork').value=d?d.substWork:'';
-  document.getElementById('f-substLeave').value=d?d.substLeave:'';
-  document.getElementById('f-reason').value=d?d.reason:'';
-  document.getElementById('f-dept').value=d?d.dept:'岡山早島センター';
-  document.getElementById('f-manager').value=d?d.manager:'';
-  document.getElementById('f-staff').value=d?d.staff:'';
-  document.getElementById('f-mgrCharge').value=d?d.mgrCharge:'';
-  document.getElementById('f-other').value=d?(d.otherText||'):'';
-  document.querySelectorAll('input[name=cat]').forEach(r=>{r.checked=d?r.value===String(d.category):false;});
-  updateCatUI();updateDaysHint();updateHoursHint();
+
+// ── Modal ─────────────────────────────────
+function openModal(id) {
+  editingId = id || null;
+  const entries = getEntries();
+  const d = id ? entries.find(e => e.id === id) : null;
+
+  document.getElementById('modal-title').textContent = id ? '編集' : '新規申請';
+
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('f-appDate').value  = d ? d.appDate : today;
+  document.getElementById('f-name').value     = d ? d.name : '';
+  document.getElementById('f-empNo').value    = d ? d.empNo : '';
+  document.getElementById('f-dateFrom').value = d ? d.dateFrom : '';
+  document.getElementById('f-dateTo').value   = d ? d.dateTo : '';
+  document.getElementById('f-timeFrom').value = d ? d.timeFrom : '';
+  document.getElementById('f-timeTo').value   = d ? d.timeTo : '';
+  document.getElementById('f-substWork').value  = d ? d.substWork : '';
+  document.getElementById('f-substLeave').value = d ? d.substLeave : '';
+  document.getElementById('f-reason').value   = d ? d.reason : '';
+  document.getElementById('f-dept').value     = d ? d.dept : '岡山早島センター';
+  document.getElementById('f-manager').value  = d ? d.manager : '';
+  document.getElementById('f-staff').value    = d ? d.staff : '';
+  document.getElementById('f-mgrCharge').value= d ? d.mgrCharge : '';
+  document.getElementById('f-other').value    = d ? (d.otherText || '') : '';
+
+  document.querySelectorAll('input[name=cat]').forEach(r => {
+    r.checked = d ? (r.value === String(d.category)) : false;
+  });
+  updateCatUI();
+  updateDaysHint();
+  updateHoursHint();
+
   document.getElementById('modal-overlay').classList.add('open');
-  document.getElementById('modal').scrollTop=0;
+  document.getElementById('modal').scrollTop = 0;
 }
-function closeModal(){document.getElementById('modal-overlay').classList.remove('open');}
-function overlayClick(e){if(e.target===document.getElementById('modal-overlay'))closeModal();}
-function updateCatUI(){
-  const val=document.querySelector('input[name=cat]:checked')?.value;
-  document.getElementById('other-field').classList.toggle('visible',val==='11');
-  document.getElementById('subst-fields').classList.toggle('visible',val==='5'||val==='6');
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
 }
-document.querySelectorAll('input[name=cat]').forEach(r=>r.addEventListener('change',updateCatUI));
-function updateDaysHint(){
-  const from=document.getElementById('f-dateFrom').value,to=document.getElementById('f-dateTo').value;
-  const hint=document.getElementById('days-hint');
-  if(from&&to&&from<=to){hint.textContent='→ '+(Math.round((new Date(to)-new Date(from))/86400000)+1)+' 日間';}else{hint.textContent='';}
+function overlayClick(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
 }
-function updateHoursHint(){
-  const from=document.getElementById('f-timeFrom').value,to=document.getElementById('f-timeTo').value;
-  const hint=document.getElementById('hours-hint');
-  if(from&&to&&from<to){
-    const[fh,fm]=from.split(':').map(Number),[th,tm]=to.split(':').map(Number);
-    const mins=(th*60+tm)-(fh*60+fm);
-    hint.textContent='→ '+Math.floor(mins/60)+'時間'+(mins%60?mins%60+'分':'');
-  }else{hint.textContent='';}
+
+// category UI
+function updateCatUI() {
+  const val = document.querySelector('input[name=cat]:checked')?.value;
+  document.getElementById('other-field').classList.toggle('visible', val === '11');
+  document.getElementById('subst-fields').classList.toggle('visible', val === '5' || val === '6');
 }
-document.getElementById('f-dateFrom').addEventListener('change',updateDaysHint);
-document.getElementById('f-dateTo').addEventListener('change',updateDaysHint);
-document.getElementById('f-timeFrom').addEventListener('change',updateHoursHint);
-document.getElementById('f-timeTo').addEventListener('change',updateHoursHint);
-function submitForm(){
-  const name=document.getElementById('f-name').value.trim();
-  const cat=document.querySelector('input[name=cat]:checked')?.value;
-  if(!name){alert('氏名を入力してください');return;}
-  if(!cat){alert('区分を選択してください');return;}
-  const entry={
-    id:editingId||Date.now(),
-    appDate:document.getElementById('f-appDate').value,
-    name,empNo:document.getElementById('f-empNo').value.trim(),
-    category:parseInt(cat),otherText:document.getElementById('f-other').value.trim(),
-    dateFrom:document.getElementById('f-dateFrom').value,dateTo:document.getElementById('f-dateTo').value,
-    timeFrom:document.getElementById('f-timeFrom').value,timeTo:document.getElementById('f-timeTo').value,
-    substWork:document.getElementById('f-substWork').value,substLeave:document.getElementById('f-substLeave').value,
-    reason:document.getElementById('f-reason').value.trim(),
-    dept:document.getElementById('f-dept').value.trim(),manager:document.getElementById('f-manager').value.trim(),
-    staff:document.getElementById('f-staff').value.trim(),mgrCharge:document.getElementById('f-mgrCharge').value.trim(),
+document.querySelectorAll('input[name=cat]').forEach(r => r.addEventListener('change', updateCatUI));
+
+// auto calc days
+function updateDaysHint() {
+  const from = document.getElementById('f-dateFrom').value;
+  const to   = document.getElementById('f-dateTo').value;
+  const hint = document.getElementById('days-hint');
+  if (from && to && from <= to) {
+    const diff = Math.round((new Date(to) - new Date(from)) / 86400000) + 1;
+    hint.textContent = `→ ${diff} 日間`;
+  } else {
+    hint.textContent = '';
+  }
+}
+function updateHoursHint() {
+  const from = document.getElementById('f-timeFrom').value;
+  const to   = document.getElementById('f-timeTo').value;
+  const hint = document.getElementById('hours-hint');
+  if (from && to && from < to) {
+    const [fh,fm] = from.split(':').map(Number);
+    const [th,tm] = to.split(':').map(Number);
+    const mins = (th*60+tm) - (fh*60+fm);
+    hint.textContent = `→ ${Math.floor(mins/60)}時間${mins%60 ? mins%60+'分' : ''}`;
+  } else {
+    hint.textContent = '';
+  }
+}
+document.getElementById('f-dateFrom').addEventListener('change', updateDaysHint);
+document.getElementById('f-dateTo').addEventListener('change', updateDaysHint);
+document.getElementById('f-timeFrom').addEventListener('change', updateHoursHint);
+document.getElementById('f-timeTo').addEventListener('change', updateHoursHint);
+
+// ── Submit ────────────────────────────────
+function submitForm() {
+  const name = document.getElementById('f-name').value.trim();
+  const cat  = document.querySelector('input[name=cat]:checked')?.value;
+  if (!name) { alert('氏名を入力してください'); return; }
+  if (!cat)  { alert('区分を選択してください'); return; }
+
+  const entry = {
+    id:         editingId || Date.now(),
+    appDate:    document.getElementById('f-appDate').value,
+    name,
+    empNo:      document.getElementById('f-empNo').value.trim(),
+    category:   parseInt(cat),
+    otherText:  document.getElementById('f-other').value.trim(),
+    dateFrom:   document.getElementById('f-dateFrom').value,
+    dateTo:     document.getElementById('f-dateTo').value,
+    timeFrom:   document.getElementById('f-timeFrom').value,
+    timeTo:     document.getElementById('f-timeTo').value,
+    substWork:  document.getElementById('f-substWork').value,
+    substLeave: document.getElementById('f-substLeave').value,
+    reason:     document.getElementById('f-reason').value.trim(),
+    dept:       document.getElementById('f-dept').value.trim(),
+    manager:    document.getElementById('f-manager').value.trim(),
+    staff:      document.getElementById('f-staff').value.trim(),
+    mgrCharge:  document.getElementById('f-mgrCharge').value.trim(),
   };
-  const entries=getEntries().filter(e=>e.id!==entry.id);
-  entries.push(entry);saveEntries(entries);closeModal();showPreview(entry.id);
+
+  const entries = getEntries().filter(e => e.id !== entry.id);
+  entries.push(entry);
+  saveEntries(entries);
+  closeModal();
+  showPreview(entry.id);
 }
-function renderPreview(id){
-  const entry=getEntries().find(e=>e.id===id);
-  if(!entry){showList();return;}
-  const n=entry.category;
-  const from=entry.dateFrom?fmtDate(entry.dateFrom):'　　　　';
-  const to=entry.dateTo?fmtDate(entry.dateTo):'　　　　';
-  const days=calcDays(entry.dateFrom,entry.dateTo);
-  const tf=entry.timeFrom||'　　',tt=entry.timeTo||'　　';
-  const hrs=calcHours(entry.timeFrom,entry.timeTo);
-  const catRow=[1,2,3,4,5,6,7,8,9,10,11].map(i=>{
-    const lbl=i===11&&entry.otherText?`11.その他（${entry.otherText}）`:`${i}.${CATS[i]}`;
-    return`<span class="cat-item-disp${i===n?' selected':''}">${lbl}</span>`;
+
+// ── Preview rendering ─────────────────────
+function renderPreview(id) {
+  const entry = getEntries().find(e => e.id === id);
+  if (!entry) { showList(); return; }
+
+  const catNo = entry.category;
+  const from = entry.dateFrom ? fmtDate(entry.dateFrom) : '　　　　';
+  const to   = entry.dateTo   ? fmtDate(entry.dateTo)   : '　　　　';
+  const days = calcDays(entry.dateFrom, entry.dateTo);
+  const tf   = entry.timeFrom || '　　';
+  const tt   = entry.timeTo   || '　　';
+  const hrs  = calcHours(entry.timeFrom, entry.timeTo);
+
+  const catRow = [1,2,3,4,5,6,7,8,9,10,11].map(n => {
+    const label = n === 11 && entry.otherText ? `11.その他（${entry.otherText}）` : `${n}.${CATS[n]}`;
+    return `<span class="cat-item-disp${n===catNo?' selected':''}">${label}</span>`;
   }).join('');
-  const substRow=(n===5||n===6)?`<div>振替出勤日（${entry.substWork?fmtDate(entry.substWork):'　　　　'}）　振替休暇日（${entry.substLeave?fmtDate(entry.substLeave):'　　　　'}）</div>`:'';
-  document.getElementById('kintai-doc-content').innerHTML=`
+
+  const substRow = (catNo === 5 || catNo === 6) ? `
+    <div>振替出勤日（${entry.substWork ? fmtDate(entry.substWork) : '　　　　'}）　振替休暇日（${entry.substLeave ? fmtDate(entry.substLeave) : '　　　　'}）</div>` : '';
+
+  document.getElementById('kintai-doc-content').innerHTML = `
     <div class="doc-title">勤　怠　届</div>
-    <div class="doc-header-row"><span>所管長　宛</span><span>申請日　${fmtDate(entry.appDate)}</span></div>
+    <div class="doc-header-row">
+      <span>所管長　宛</span>
+      <span>申請日　${fmtDate(entry.appDate)}</span>
+    </div>
     <div class="doc-badge">パート従業員</div>
-    <table class="doc-table"><tbody>
-      <tr><td class="doc-lbl">氏&emsp;名</td><td colspan="6">No.&nbsp;${entry.empNo||''}&emsp;&emsp;&emsp;<strong>${entry.name}</strong>&emsp;&emsp;㊞</td></tr>
-      <tr><td class="doc-lbl" style="vertical-align:top;padding-top:6px;">区&emsp;分</td><td colspan="6"><div class="cat-all">${catRow}</div></td></tr>
-      <tr><td class="doc-lbl" style="vertical-align:top;padding-top:6px;line-height:2;"><div>期　間</div><div>日　時</div></td>
-        <td colspan="6"><div class="period-lines"><div>${from}　〜　${to}（${days}日間）</div><div>${tf}　〜　${tt}（${hrs}）</div>${substRow}</div></td></tr>
-      <tr><td class="doc-lbl">事&emsp;由</td><td class="reason-td" colspan="5">${escHtml(entry.reason||'')}</td><td class="mgr-td">管理担当<br>${escHtml(entry.mgrCharge||'')}</td></tr>
-      <tr><td class="doc-lbl" rowspan="2">所&emsp;管</td><td colspan="2">${escHtml(entry.dept||'')}</td><td class="doc-lbl-sm">所管長</td><td>${escHtml(entry.manager||'')}</td><td class="doc-lbl-sm">担&emsp;当</td><td>${escHtml(entry.staff||'')}</td></tr>
-      <tr><td colspan="6"></td></tr>
-    </tbody></table>
-    <div class="doc-version">Ver.201810-1</div>`;
-  document.getElementById('btn-edit').onclick=()=>openModal(id);
-  document.getElementById('btn-delete').onclick=()=>deleteEntry(id);
+    <table class="doc-table">
+      <tbody>
+        <tr>
+          <td class="doc-lbl">氏&emsp;名</td>
+          <td colspan="6">
+            No.&nbsp;${entry.empNo || ''}
+            &emsp;&emsp;&emsp;<strong>${entry.name}</strong>&emsp;&emsp;㊞
+          </td>
+        </tr>
+        <tr>
+          <td class="doc-lbl" style="vertical-align:top;padding-top:6px;">区&emsp;分</td>
+          <td colspan="6"><div class="cat-all">${catRow}</div></td>
+        </tr>
+        <tr>
+          <td class="doc-lbl" style="vertical-align:top;padding-top:6px;line-height:2;">
+            <div>期　間</div><div>日　時</div>
+          </td>
+          <td colspan="6">
+            <div class="period-lines">
+              <div>${from}　〜　${to}（${days}日間）</div>
+              <div>${tf}　〜　${tt}（${hrs}）</div>
+              ${substRow}
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="doc-lbl">事&emsp;由</td>
+          <td class="reason-td" colspan="5">${escHtml(entry.reason || '')}</td>
+          <td class="mgr-td">管理担当<br>${escHtml(entry.mgrCharge || '')}</td>
+        </tr>
+        <tr>
+          <td class="doc-lbl" rowspan="2">所&emsp;管</td>
+          <td colspan="2">${escHtml(entry.dept || '')}</td>
+          <td class="doc-lbl-sm">所管長</td>
+          <td>${escHtml(entry.manager || '')}</td>
+          <td class="doc-lbl-sm">担&emsp;当</td>
+          <td>${escHtml(entry.staff || '')}</td>
+        </tr>
+        <tr>
+          <td colspan="6"></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="doc-version">Ver.201810-1</div>
+  `;
+
+  document.getElementById('btn-edit').onclick   = () => { openModal(id); };
+  document.getElementById('btn-delete').onclick = () => deleteEntry(id);
 }
-function deleteEntry(id){
-  if(!confirm('この申請を削除しますか？'))return;
-  saveEntries(getEntries().filter(e=>e.id!==id));showList();
+
+function deleteEntry(id) {
+  if (!confirm('この申請を削除しますか？')) return;
+  saveEntries(getEntries().filter(e => e.id !== id));
+  showList();
 }
-function fmtDate(s){if(!s)return'';const[y,m,d]=s.split('-');return`${y}年${parseInt(m)}月${parseInt(d)}日`;}
-function calcDays(from,to){if(!from||!to||from>to)return'';return Math.round((new Date(to)-new Date(from))/86400000)+1;}
-function calcHours(from,to){
-  if(!from||!to||from>=to)return'';
-  const[fh,fm]=from.split(':').map(Number),[th,tm]=to.split(':').map(Number);
-  const mins=(th*60+tm)-(fh*60+fm);
-  if(mins<=0)return'';
-  return`${Math.floor(mins/60)}時間${mins%60?mins%60+'分':''}`;
+
+// ── Helpers ───────────────────────────────
+function fmtDate(s) {
+  if (!s) return '';
+  const [y,m,d] = s.split('-');
+  return `${y}年${parseInt(m)}月${parseInt(d)}日`;
 }
-function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');}
+function calcDays(from, to) {
+  if (!from || !to || from > to) return '';
+  return Math.round((new Date(to) - new Date(from)) / 86400000) + 1;
+}
+function calcHours(from, to) {
+  if (!from || !to || from >= to) return '';
+  const [fh,fm] = from.split(':').map(Number);
+  const [th,tm] = to.split(':').map(Number);
+  const mins = (th*60+tm) - (fh*60+fm);
+  if (mins <= 0) return '';
+  return `${Math.floor(mins/60)}時間${mins%60 ? mins%60+'分' : ''}`;
+}
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+
+// ── Init ──────────────────────────────────
 renderList();
-<\/script>
+</script>
 </body>
 </html>

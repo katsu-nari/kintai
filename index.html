@@ -1,13 +1,317 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>kintai</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>勤怠届</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'MS Mincho', 'Yu Mincho', '游明朝', 'Hiragino Mincho ProN', serif;
+  background: #e8e8e8;
+  padding: 16px;
+}
+.form-wrap {
+  background: white;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px 28px 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+h1 {
+  text-align: center;
+  font-size: 22pt;
+  letter-spacing: 0.5em;
+  margin-bottom: 14px;
+}
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 11pt;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.app-date { display: flex; align-items: center; gap: 4px; }
+.badge {
+  display: inline-block;
+  border: 2px solid #000;
+  padding: 2px 8px;
+  font-weight: bold;
+  font-size: 11pt;
+  margin-bottom: 0;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 2px solid #000;
+  font-size: 10pt;
+  margin-top: 0;
+}
+td {
+  border: 1px solid #000;
+  padding: 5px 7px;
+  vertical-align: middle;
+}
+.lbl {
+  text-align: center;
+  white-space: nowrap;
+  width: 55px;
+  font-size: 11pt;
+}
+.lbl-sm {
+  text-align: center;
+  white-space: nowrap;
+  width: 48px;
+  font-size: 10pt;
+}
+input[type=text], textarea {
+  border: none;
+  border-bottom: 1px solid #888;
+  outline: none;
+  font-family: inherit;
+  font-size: 10pt;
+  width: 100%;
+  background: transparent;
+  padding: 1px 2px;
+}
+input[type=text]:focus, textarea:focus { background: #f0f8ff; }
+input[type=number] {
+  border: none;
+  border-bottom: 1px solid #888;
+  outline: none;
+  font-family: inherit;
+  font-size: 10pt;
+  text-align: center;
+  background: transparent;
+  -moz-appearance: textfield;
+  width: 44px;
+}
+input[type=number]:focus { background: #f0f8ff; }
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+.cat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 5px 10px;
+  padding: 4px 0;
+}
+@media (min-width: 500px) {
+  .cat-grid { grid-template-columns: repeat(4, 1fr); }
+}
+.cat-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  font-size: 10pt;
+  white-space: nowrap;
+}
+.cat-item input[type=radio] {
+  accent-color: #003399;
+  width: 14px; height: 14px;
+  cursor: pointer;
+}
+.other-wrap { display: flex; align-items: center; gap: 2px; }
+.other-input {
+  width: 80px !important;
+  display: inline-block;
+}
+.period-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  font-size: 10pt;
+}
+.w-year { width: 52px; }
+.w-md   { width: 30px; }
+.w-hm   { width: 34px; }
+.w-cnt  { width: 38px; }
+.tilde  { margin: 0 4px; font-size: 13pt; }
+.subst  { font-size: 9.5pt; }
+.reason-td { vertical-align: top; min-height: 70px; }
+textarea.reason {
+  width: 100%; height: 68px; resize: none;
+  border: none; outline: none;
+  font-family: inherit; font-size: 10pt;
+  background: transparent;
+}
+textarea.reason:focus { background: #f0f8ff; }
+.mgr-td { width: 70px; vertical-align: top; text-align: center; }
+.mgr-lbl { font-size: 9pt; font-weight: bold; margin-bottom: 4px; }
+.version { text-align: right; font-size: 8pt; margin-top: 4px; color: #444; }
+.btns {
+  display: flex; justify-content: center;
+  gap: 16px; margin-top: 20px;
+}
+.btn {
+  padding: 10px 32px;
+  font-size: 13pt;
+  font-family: inherit;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  border: 2px solid;
+}
+.btn-print { background: #003399; color: white; border-color: #003399; }
+.btn-reset { background: white; color: #666; border-color: #999; }
+@media print {
+  body { background: white; padding: 0; }
+  .form-wrap { box-shadow: none; padding: 10mm 15mm; }
+  .btns { display: none; }
+  input, textarea { border-bottom-color: transparent !important; background: transparent !important; }
+}
+</style>
+</head>
+<body>
+<div class="form-wrap">
+  <h1>勤　怠　届</h1>
+
+  <div class="header-row">
+    <div>所管長　宛</div>
+    <div class="app-date">
+      申請日
+      <input type="number" class="w-year" id="appY" placeholder="年">年
+      <input type="number" class="w-md"   id="appM" placeholder="月" min="1" max="12">月
+      <input type="number" class="w-md"   id="appD" placeholder="日" min="1" max="31">日
+    </div>
+  </div>
+
+  <div class="badge">パート従業員</div>
+
+  <table>
+    <tbody>
+      <tr>
+        <td class="lbl" rowspan="2">所&emsp;管</td>
+        <td colspan="2"><input type="text" id="dept" value="岡山早島センター"></td>
+        <td class="lbl-sm">所管長</td>
+        <td><input type="text" id="mgr"></td>
+        <td class="lbl-sm">担&emsp;当</td>
+        <td><input type="text" id="staff"></td>
+      </tr>
+      <tr>
+        <td colspan="6"></td>
+      </tr>
+      <tr>
+        <td class="lbl">氏&emsp;名</td>
+        <td colspan="6">
+          No.&nbsp;<input type="text" id="empNo" style="width:180px">
+          &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;㊞
+        </td>
+      </tr>
+      <tr>
+        <td class="lbl" style="vertical-align:top;padding-top:8px;">区&emsp;分</td>
+        <td colspan="6">
+          <div class="cat-grid">
+            <label class="cat-item"><input type="radio" name="cat" value="1"><span>1. 有給休暇</span></label>
+            <label class="cat-item"><input type="radio" name="cat" value="2"><span>2. 欠勤</span></label>
+            <label class="cat-item"><input type="radio" name="cat" value="3"><span>3. 遅刻</span></label>
+            <label class="cat-item"><input type="radio" name="cat" value="4"><span>4. 早退</span></label>
+            <label class="cat-item"><input type="radio" name="cat" value="5"><span>5. 振替出勤</span></label>
+            <label class="cat-item"><input type="radio" name="cat" value="6"><span>6. 振替休暇</span></label>
+            <label class="cat-item"><input type="radio" name="cat" value="7"><span>7. 打刻忘れ</span></label>
+            <label class="cat-item"><input type="radio" name="cat" value="8"><span>8. 私用外出</span></label>
+            <label class="cat-item"><input type="radio" name="cat" value="9"><span>9. 打刻修正</span></label>
+            <label class="cat-item"><input type="radio" name="cat" value="10"><span>10. 勤務時間変更</span></label>
+            <label class="cat-item" style="grid-column:span 2;">
+              <input type="radio" name="cat" value="11"><span>11. その他（</span>
+              <input type="text" id="otherText" class="other-input" disabled>
+              <span>）</span>
+            </label>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="lbl" style="vertical-align:top;padding-top:10px;line-height:2.2;">
+          <div>期　間</div><div>日　時</div>
+        </td>
+        <td colspan="6" style="padding:8px 10px;">
+          <div class="period-row">
+            <input type="number" class="w-year" id="pfY" placeholder="年">年
+            <input type="number" class="w-md"   id="pfM" placeholder="月" min="1" max="12">月
+            <input type="number" class="w-md"   id="pfD" placeholder="日" min="1" max="31">日
+            <span class="tilde">～</span>
+            <input type="number" class="w-year" id="ptY" placeholder="年">年
+            <input type="number" class="w-md"   id="ptM" placeholder="月" min="1" max="12">月
+            <input type="number" class="w-md"   id="ptD" placeholder="日" min="1" max="31">日
+            （<input type="number" class="w-cnt" id="days" placeholder="0" min="0">日間）
+          </div>
+          <div class="period-row">
+            <input type="number" class="w-hm" id="tfH" placeholder="時" min="0" max="23">時
+            <input type="number" class="w-hm" id="tfM" placeholder="分" min="0" max="59">分
+            <span class="tilde">～</span>
+            <input type="number" class="w-hm" id="ttH" placeholder="時" min="0" max="23">時
+            <input type="number" class="w-hm" id="ttM" placeholder="分" min="0" max="59">分
+            （<input type="number" class="w-cnt" id="hours" placeholder="0" min="0" step="0.5">時間）
+          </div>
+          <div class="period-row subst" id="substRow" style="opacity:0.4;">
+            振替出勤日（
+            <input type="number" class="w-year" id="swY" placeholder="年">年
+            <input type="number" class="w-md"   id="swM" placeholder="月" min="1" max="12">月
+            <input type="number" class="w-md"   id="swD" placeholder="日" min="1" max="31">日
+            ）&ensp;振替休暇日（
+            <input type="number" class="w-year" id="slY" placeholder="年">年
+            <input type="number" class="w-md"   id="slM" placeholder="月" min="1" max="12">月
+            <input type="number" class="w-md"   id="slD" placeholder="日" min="1" max="31">日
+            ）
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="lbl">事&emsp;由</td>
+        <td class="reason-td" colspan="5">
+          <textarea class="reason" id="reason" placeholder="事由を入力してください"></textarea>
+        </td>
+        <td class="mgr-td">
+          <div class="mgr-lbl">管理担当</div>
+          <input type="text" id="mgrCharge">
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="version">Ver.201810-1</div>
+
+  <div class="btns">
+    <button class="btn btn-print" onclick="window.print()">印刷</button>
+    <button class="btn btn-reset" onclick="resetForm()">リセット</button>
+  </div>
+</div>
+
+<script>
+const today = new Date();
+document.getElementById('appY').value = today.getFullYear();
+document.getElementById('appM').value = today.getMonth() + 1;
+document.getElementById('appD').value = today.getDate();
+
+document.querySelectorAll('input[name=cat]').forEach(r => {
+  r.addEventListener('change', () => {
+    const v = parseInt(r.value);
+    document.getElementById('otherText').disabled = (v !== 11);
+    document.getElementById('substRow').style.opacity = (v === 5 || v === 6) ? '1' : '0.4';
+  });
+});
+
+function resetForm() {
+  if (!confirm('入力内容をリセットしますか？')) return;
+  const today = new Date();
+  document.getElementById('appY').value = today.getFullYear();
+  document.getElementById('appM').value = today.getMonth() + 1;
+  document.getElementById('appD').value = today.getDate();
+  ['dept','mgr','staff','empNo','otherText','reason','mgrCharge'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = id === 'dept' ? '岡山早島センター' : '';
+  });
+  ['pfY','pfM','pfD','ptY','ptM','ptD','days','tfH','tfM','ttH','ttM','hours','swY','swM','swD','slY','slM','slD'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.querySelectorAll('input[name=cat]').forEach(r => r.checked = false);
+  document.getElementById('otherText').disabled = true;
+  document.getElementById('substRow').style.opacity = '0.4';
+}
+</script>
+</body>
 </html>

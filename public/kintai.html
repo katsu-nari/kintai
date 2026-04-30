@@ -198,7 +198,10 @@ textarea.field-input { height: 80px; resize: none; }
 }
 .emp-no { font-size: 11px; color: var(--muted); min-width: 60px; }
 .emp-name { flex: 1; font-weight: bold; }
+.emp-pass-badge { font-size: 11px; color: var(--muted); }
 .emp-del { background: none; border: none; color: var(--danger); font-size: 18px; cursor: pointer; padding: 4px 8px; }
+.pw-field { display: none; }
+.pw-field.visible { display: block; }
 
 /* ── CSV view ────────────────────────── */
 .csv-body { padding: 12px 12px 80px; }
@@ -292,6 +295,10 @@ textarea.field-input { height: 80px; resize: none; }
           <div class="field-label">氏名</div>
           <input type="text" class="field-input" id="new-empName" placeholder="氏名を入力">
         </div>
+        <div class="field-group">
+          <div class="field-label">パスワード（任意）</div>
+          <input type="password" class="field-input" id="new-empPass" placeholder="申請時に必要なパスワード">
+        </div>
         <button class="btn btn-primary" onclick="addEmployee()">＋ 追加</button>
       </div>
       <div class="section-label" style="margin-top:16px;">登録済み従業員</div>
@@ -324,6 +331,11 @@ textarea.field-input { height: 80px; resize: none; }
           <div class="field-label field-required">氏名</div>
           <input type="text" class="field-input" id="f-name" placeholder="氏名（番号入力で自動入力）">
           <div class="field-hint" id="emp-hint"></div>
+        </div>
+        <div class="field-group pw-field" id="pw-field">
+          <div class="field-label field-required">パスワード</div>
+          <input type="password" class="field-input" id="f-password" placeholder="登録済みパスワードを入力">
+          <div class="field-hint" id="pw-hint"></div>
         </div>
 
         <!-- 区分 -->
@@ -480,19 +492,22 @@ function renderEmployees() {
     <div class="emp-item">
       <span class="emp-no">No.${e.empNo}</span>
       <span class="emp-name">${e.name}</span>
+      <span class="emp-pass-badge">${e.password ? '🔒' : '🔓'}</span>
       <button class="emp-del" onclick="deleteEmployee(${i})">✕</button>
     </div>`).join('');
 }
 function addEmployee() {
-  const empNo = document.getElementById('new-empNo').value.trim();
-  const name  = document.getElementById('new-empName').value.trim();
+  const empNo    = document.getElementById('new-empNo').value.trim();
+  const name     = document.getElementById('new-empName').value.trim();
+  const password = document.getElementById('new-empPass').value;
   if (!empNo || !name) { alert('社員番号と氏名を入力してください'); return; }
   const list = getEmployees();
   if (list.find(e => e.empNo === empNo)) { alert('この社員番号はすでに登録されています'); return; }
-  list.push({ empNo, name });
+  list.push({ empNo, name, password });
   saveEmployees(list);
   document.getElementById('new-empNo').value = '';
   document.getElementById('new-empName').value = '';
+  document.getElementById('new-empPass').value = '';
   renderEmployees();
 }
 function deleteEmployee(index) {
@@ -505,17 +520,31 @@ function deleteEmployee(index) {
 function lookupEmployee(empNo) {
   const hint = document.getElementById('emp-hint');
   const nameEl = document.getElementById('f-name');
-  if (!empNo.trim()) { hint.textContent = ''; return; }
+  const pwField = document.getElementById('pw-field');
+  const pwHint = document.getElementById('pw-hint');
+  if (!empNo.trim()) {
+    hint.textContent = '';
+    pwField.classList.remove('visible');
+    return;
+  }
   const found = getEmployees().find(e => e.empNo === empNo.trim());
   if (found) {
     nameEl.value = found.name;
     nameEl.style.background = '#f0fff4';
     hint.textContent = '✓ ' + found.name + ' が見つかりました';
     hint.style.color = '#2d7a2d';
+    if (found.password) {
+      pwField.classList.add('visible');
+      pwHint.textContent = '🔒 パスワードが設定されています';
+      pwHint.style.color = 'var(--muted)';
+    } else {
+      pwField.classList.remove('visible');
+    }
   } else {
     nameEl.style.background = '';
     hint.textContent = '※ 名簿に見つかりません（手動入力可）';
     hint.style.color = 'var(--muted)';
+    pwField.classList.remove('visible');
   }
 }
 
@@ -582,6 +611,9 @@ function openModal(id) {
   const hint = document.getElementById('emp-hint');
   if (hint) { hint.textContent = ''; }
   document.getElementById('f-name').style.background = '';
+  document.getElementById('f-password').value = '';
+  document.getElementById('pw-field').classList.remove('visible');
+  document.getElementById('pw-hint').textContent = '';
   document.getElementById('modal-overlay').classList.add('open');
   document.getElementById('modal').scrollTop = 0;
 }
@@ -632,10 +664,30 @@ document.getElementById('f-timeTo').addEventListener('change', updateHoursHint);
 
 // ── Submit ────────────────────────────────
 function submitForm() {
-  const name = document.getElementById('f-name').value.trim();
-  const cat  = document.querySelector('input[name=cat]:checked')?.value;
+  const name  = document.getElementById('f-name').value.trim();
+  const empNo = document.getElementById('f-empNo').value.trim();
+  const cat   = document.querySelector('input[name=cat]:checked')?.value;
   if (!name) { alert('氏名を入力してください'); return; }
   if (!cat)  { alert('区分を選択してください'); return; }
+
+  const empRecord = getEmployees().find(e => e.empNo === empNo);
+  if (empRecord && empRecord.password) {
+    const entered = document.getElementById('f-password').value;
+    if (!entered) {
+      document.getElementById('pw-field').classList.add('visible');
+      document.getElementById('pw-hint').textContent = '⚠ パスワードを入力してください';
+      document.getElementById('pw-hint').style.color = 'var(--danger)';
+      document.getElementById('f-password').focus();
+      return;
+    }
+    if (entered !== empRecord.password) {
+      document.getElementById('pw-hint').textContent = '✗ パスワードが違います';
+      document.getElementById('pw-hint').style.color = 'var(--danger)';
+      document.getElementById('f-password').value = '';
+      document.getElementById('f-password').focus();
+      return;
+    }
+  }
 
   const entry = {
     id:         editingId || Date.now(),

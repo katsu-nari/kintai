@@ -1,0 +1,443 @@
+.kintai-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+}
+
+.kintai-form {
+  background: white;
+  width: 210mm;
+  min-height: 297mm;
+  padding: 20mm 20mm 15mm;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+/* Title */
+.form-title {
+  text-align: center;
+  font-size: 22pt;
+  font-weight: bold;
+  letter-spacing: 0.5em;
+  margin-bottom: 12px;
+}
+
+/* Header row */
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.addressee {
+  font-size: 11pt;
+}
+
+.application-date {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11pt;
+}
+
+/* Employee type badge */
+.employee-type-badge {
+  display: inline-block;
+  border: 2px solid #000;
+  padding: 2px 8px;
+  font-size: 11pt;
+  margin-bottom: 0;
+  font-weight: bold;
+}
+
+/* Main table */
+.form-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 2px solid #000;
+  margin-top: 0;
+  font-size: 10.5pt;
+}
+
+.form-table td {
+  border: 1px solid #000;
+  padding: 4px 6px;
+  vertical-align: middle;
+}
+
+.label-cell {
+  background: #fff;
+  white-space: nowrap;
+  text-align: center;
+  font-size: 11pt;
+  width: 60px;
+  padding: 6px 4px;
+}
+
+.label-cell-sm {
+  background: #fff;
+  white-space: nowrap;
+  text-align: center;
+  font-size: 10pt;
+  width: 50px;
+  padding: 4px 2px;
+}
+
+.value-cell {
+  padding: 4px 8px;
+}
+
+.value-cell-sm {
+  padding: 4px 6px;
+  min-width: 60px;
+}
+
+/* Input styles */
+.text-input {
+  border: none;
+  border-bottom: 1px solid #666;
+  outline: none;
+  font-size: 10.5pt;
+  font-family: inherit;
+  width: 100%;
+  background: transparent;
+  padding: 1px 2px;
+}
+
+.text-input:focus {
+  border-bottom-color: #0066cc;
+  background: #f0f8ff;
+}
+
+/* Name row */
+.name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.no-label {
+  white-space: nowrap;
+  font-size: 10.5pt;
+}
+
+.no-input {
+  width: 200px;
+}
+
+.name-value {
+  position: relative;
+}
+
+.seal-placeholder {
+  position: absolute;
+  right: 10px;
+  bottom: 4px;
+  font-size: 12pt;
+  color: #999;
+}
+
+/* Category section */
+.category-label {
+  vertical-align: top;
+  padding-top: 8px;
+}
+
+.category-value {
+  padding: 6px 10px;
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px 8px;
+  font-size: 10pt;
+}
+
+.category-item {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.category-item input[type="radio"] {
+  cursor: pointer;
+  accent-color: #003399;
+  width: 14px;
+  height: 14px;
+}
+
+.cat-number {
+  font-size: 9.5pt;
+  color: #333;
+  min-width: 16px;
+}
+
+.cat-label {
+  font-size: 10pt;
+}
+
+.other-text {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  grid-column: span 2;
+}
+
+.other-input {
+  border: none;
+  border-bottom: 1px solid #666;
+  outline: none;
+  font-family: inherit;
+  font-size: 10pt;
+  width: 120px;
+  background: transparent;
+}
+
+.other-input:focus {
+  border-bottom-color: #0066cc;
+  background: #f0f8ff;
+}
+
+.other-input:disabled {
+  background: transparent;
+  color: #999;
+}
+
+/* Period section */
+.period-label {
+  vertical-align: top;
+  padding-top: 10px;
+  line-height: 2;
+}
+
+.period-value {
+  padding: 8px 10px;
+}
+
+.period-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 8px;
+  font-size: 10pt;
+  flex-wrap: wrap;
+}
+
+.time-row {
+  margin-top: 4px;
+}
+
+.substitute-row {
+  margin-top: 4px;
+  font-size: 9.5pt;
+}
+
+.substitute-hidden {
+  opacity: 0.4;
+}
+
+.substitute-gap {
+  margin-left: 16px;
+}
+
+.tilde {
+  margin: 0 6px;
+  font-size: 12pt;
+}
+
+.date-fields,
+.time-fields {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+/* Number input fields */
+.field-year {
+  width: 52px;
+  border: none;
+  border-bottom: 1px solid #666;
+  outline: none;
+  font-size: 10pt;
+  font-family: inherit;
+  text-align: center;
+  background: transparent;
+  -moz-appearance: textfield;
+}
+
+.field-month,
+.field-day {
+  width: 32px;
+  border: none;
+  border-bottom: 1px solid #666;
+  outline: none;
+  font-size: 10pt;
+  font-family: inherit;
+  text-align: center;
+  background: transparent;
+  -moz-appearance: textfield;
+}
+
+.field-hour,
+.field-minute {
+  width: 36px;
+  border: none;
+  border-bottom: 1px solid #666;
+  outline: none;
+  font-size: 10pt;
+  font-family: inherit;
+  text-align: center;
+  background: transparent;
+  -moz-appearance: textfield;
+}
+
+.field-count {
+  width: 40px;
+  border: none;
+  border-bottom: 1px solid #666;
+  outline: none;
+  font-size: 10pt;
+  font-family: inherit;
+  text-align: center;
+  background: transparent;
+  -moz-appearance: textfield;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+input[type="number"]:focus {
+  border-bottom-color: #0066cc;
+  background: #f0f8ff;
+}
+
+/* Reason section */
+.reason-cell {
+  vertical-align: top;
+  height: 80px;
+}
+
+.reason-textarea {
+  width: 100%;
+  height: 70px;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 10pt;
+  resize: none;
+  background: transparent;
+  padding: 2px;
+}
+
+.reason-textarea:focus {
+  background: #f0f8ff;
+}
+
+.manager-cell {
+  width: 70px;
+  vertical-align: top;
+  text-align: center;
+  padding: 4px;
+}
+
+.manager-label {
+  font-size: 9pt;
+  margin-bottom: 4px;
+  font-weight: bold;
+}
+
+.manager-input {
+  width: 100%;
+  font-size: 9pt;
+  border-bottom: 1px solid #666;
+  text-align: center;
+}
+
+/* Version */
+.version {
+  text-align: right;
+  font-size: 8pt;
+  margin-top: 4px;
+  color: #333;
+}
+
+/* Action buttons */
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.btn {
+  padding: 10px 32px;
+  font-size: 13pt;
+  font-family: inherit;
+  border: 2px solid #333;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+
+.btn-print {
+  background: #003399;
+  color: white;
+  border-color: #003399;
+}
+
+.btn-print:hover {
+  background: #0044cc;
+}
+
+.btn-reset {
+  background: white;
+  color: #666;
+  border-color: #999;
+}
+
+.btn-reset:hover {
+  background: #f0f0f0;
+}
+
+/* Print styles */
+@media print {
+  .kintai-wrapper {
+    padding: 0;
+  }
+
+  .kintai-form {
+    box-shadow: none;
+    padding: 10mm 15mm;
+    width: 100%;
+    min-height: auto;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .text-input,
+  .other-input,
+  .reason-textarea,
+  .manager-input,
+  .field-year,
+  .field-month,
+  .field-day,
+  .field-hour,
+  .field-minute,
+  .field-count {
+    border-bottom-color: transparent;
+    background: transparent !important;
+  }
+
+  .substitute-hidden {
+    opacity: 1;
+  }
+}

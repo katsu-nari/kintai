@@ -1,0 +1,16 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'MS Mincho', 'Yu Mincho', '游明朝', 'Hiragino Mincho ProN', serif;
+  background-color: #e8e8e8;
+  min-height: 100vh;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}

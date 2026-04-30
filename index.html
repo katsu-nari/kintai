@@ -2,316 +2,500 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>勤怠届</title>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: 'MS Mincho', 'Yu Mincho', '游明朝', 'Hiragino Mincho ProN', serif;
-  background: #e8e8e8;
-  padding: 16px;
+:root {
+  --primary: #003399;
+  --primary-light: #e8f0ff;
+  --border: #ddd;
+  --bg: #f2f4f8;
+  --white: #fff;
+  --text: #222;
+  --muted: #777;
+  --danger: #c0392b;
+  --radius: 10px;
 }
-.form-wrap {
-  background: white;
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 24px 28px 20px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-}
-h1 {
-  text-align: center;
-  font-size: 22pt;
-  letter-spacing: 0.5em;
-  margin-bottom: 14px;
-}
-.header-row {
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
+
+.app { max-width: 600px; margin: 0 auto; min-height: 100dvh; position: relative; }
+.view { display: none; min-height: 100dvh; }
+.view.active { display: block; }
+
+.app-header {
+  background: var(--primary);
+  color: white;
+  padding: 14px 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
-  font-size: 11pt;
-  flex-wrap: wrap;
-  gap: 8px;
+  position: sticky; top: 0; z-index: 50;
 }
-.app-date { display: flex; align-items: center; gap: 4px; }
-.badge {
-  display: inline-block;
-  border: 2px solid #000;
-  padding: 2px 8px;
-  font-weight: bold;
-  font-size: 11pt;
-  margin-bottom: 0;
-}
-table {
-  width: 100%;
-  border-collapse: collapse;
-  border: 2px solid #000;
-  font-size: 10pt;
-  margin-top: 0;
-}
-td {
-  border: 1px solid #000;
-  padding: 5px 7px;
-  vertical-align: middle;
-}
-.lbl {
-  text-align: center;
-  white-space: nowrap;
-  width: 55px;
-  font-size: 11pt;
-}
-.lbl-sm {
-  text-align: center;
-  white-space: nowrap;
-  width: 48px;
-  font-size: 10pt;
-}
-input[type=text], textarea {
-  border: none;
-  border-bottom: 1px solid #888;
-  outline: none;
-  font-family: inherit;
-  font-size: 10pt;
-  width: 100%;
-  background: transparent;
-  padding: 1px 2px;
-}
-input[type=text]:focus, textarea:focus { background: #f0f8ff; }
-input[type=number] {
-  border: none;
-  border-bottom: 1px solid #888;
-  outline: none;
-  font-family: inherit;
-  font-size: 10pt;
-  text-align: center;
-  background: transparent;
-  -moz-appearance: textfield;
-  width: 44px;
-}
-input[type=number]:focus { background: #f0f8ff; }
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
-.cat-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 5px 10px;
-  padding: 4px 0;
-}
-@media (min-width: 500px) {
-  .cat-grid { grid-template-columns: repeat(4, 1fr); }
-}
-.cat-item {
+.app-header h1 { font-size: 17px; letter-spacing: .25em; }
+.header-btn { background: none; border: 1px solid rgba(255,255,255,.5); color: white; border-radius: 6px; padding: 5px 12px; font-size: 12px; cursor: pointer; }
+
+.list-body { padding: 16px 12px 88px; }
+.section-label { font-size: 11px; color: var(--muted); font-weight: bold; letter-spacing: .1em; margin: 8px 4px 8px; }
+.entry-card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 12px;
+  border-left: 4px solid var(--primary);
+  transition: transform .1s;
+}
+.entry-card:active { transform: scale(.98); background: #f5f8ff; }
+.card-icon { width: 40px; height: 40px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 13px; flex-shrink: 0; }
+.card-body { flex: 1; min-width: 0; }
+.card-cat { font-weight: bold; font-size: 14px; }
+.card-meta { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.card-arrow { color: var(--muted); font-size: 18px; }
+.empty-state { text-align: center; padding: 80px 20px; color: var(--muted); }
+.empty-icon { font-size: 48px; margin-bottom: 12px; }
+.empty-text { font-size: 14px; }
+
+.fab {
+  position: fixed;
+  bottom: 24px; right: calc(50% - 300px + 20px);
+  width: 58px; height: 58px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  font-size: 28px;
+  border: none;
+  box-shadow: 0 4px 16px rgba(0,51,153,.4);
   cursor: pointer;
-  font-size: 10pt;
-  white-space: nowrap;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100;
+  transition: transform .15s;
 }
-.cat-item input[type=radio] {
-  accent-color: #003399;
-  width: 14px; height: 14px;
-  cursor: pointer;
+.fab:active { transform: scale(.93); }
+@media (max-width: 640px) { .fab { right: 20px; } }
+
+.modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.55);
+  z-index: 200;
+  align-items: flex-end;
+  justify-content: center;
 }
-.other-wrap { display: flex; align-items: center; gap: 2px; }
-.other-input {
-  width: 80px !important;
-  display: inline-block;
+.modal-overlay.open { display: flex; }
+.modal {
+  background: white;
+  width: 100%; max-width: 600px;
+  border-radius: 18px 18px 0 0;
+  padding: 0 0 32px;
+  max-height: 92dvh;
+  overflow-y: auto;
+  animation: slideUp .25s ease;
 }
-.period-row {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin-bottom: 8px;
-  flex-wrap: wrap;
-  font-size: 10pt;
+@keyframes slideUp { from { transform: translateY(60px); opacity: 0; } to { transform: none; opacity: 1; } }
+.modal-handle { width: 36px; height: 4px; background: #ddd; border-radius: 2px; margin: 10px auto 0; }
+.modal-header { padding: 14px 16px 12px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: white; z-index: 10; }
+.modal-title { font-size: 16px; font-weight: bold; }
+.modal-close { font-size: 22px; background: none; border: none; cursor: pointer; color: var(--muted); width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+.modal-close:active { background: #eee; }
+.modal-body { padding: 16px; }
+
+.field-group { margin-bottom: 18px; }
+.field-label { font-size: 11px; font-weight: bold; color: var(--muted); margin-bottom: 6px; letter-spacing: .05em; }
+.field-required::after { content: ' *'; color: #c0392b; }
+.field-input {
+  width: 100%; padding: 11px 12px;
+  border: 1.5px solid var(--border); border-radius: 8px;
+  font-size: 15px; font-family: inherit; background: white; color: var(--text);
+  -webkit-appearance: none;
 }
-.w-year { width: 52px; }
-.w-md   { width: 30px; }
-.w-hm   { width: 34px; }
-.w-cnt  { width: 38px; }
-.tilde  { margin: 0 4px; font-size: 13pt; }
-.subst  { font-size: 9.5pt; }
-.reason-td { vertical-align: top; min-height: 70px; }
-textarea.reason {
-  width: 100%; height: 68px; resize: none;
-  border: none; outline: none;
-  font-family: inherit; font-size: 10pt;
-  background: transparent;
+.field-input:focus { outline: none; border-color: var(--primary); background: var(--primary-light); }
+textarea.field-input { height: 80px; resize: none; }
+.field-row { display: flex; gap: 8px; align-items: center; }
+.field-row .field-input { flex: 1; }
+.field-sep { color: var(--muted); font-size: 18px; flex-shrink: 0; }
+.field-hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+.cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.cat-radio { display: none; }
+.cat-chip {
+  display: block; padding: 9px 8px;
+  border: 1.5px solid var(--border); border-radius: 8px;
+  font-size: 13px; cursor: pointer; text-align: center;
+  transition: all .15s; user-select: none;
 }
-textarea.reason:focus { background: #f0f8ff; }
-.mgr-td { width: 70px; vertical-align: top; text-align: center; }
-.mgr-lbl { font-size: 9pt; font-weight: bold; margin-bottom: 4px; }
-.version { text-align: right; font-size: 8pt; margin-top: 4px; color: #444; }
-.btns {
-  display: flex; justify-content: center;
-  gap: 16px; margin-top: 20px;
+.cat-chip:active { opacity: .7; }
+.cat-radio:checked + .cat-chip { background: var(--primary); color: white; border-color: var(--primary); font-weight: bold; }
+.other-field { display: none; margin-top: 8px; }
+.other-field.visible { display: block; }
+
+.cond-field { display: none; }
+.cond-field.visible { display: block; }
+
+.modal-actions { display: flex; gap: 10px; margin-top: 24px; }
+.btn { flex: 1; padding: 14px; font-size: 15px; font-family: inherit; font-weight: bold; border-radius: 10px; border: none; cursor: pointer; transition: opacity .15s; }
+.btn:active { opacity: .8; }
+.btn-primary { background: var(--primary); color: white; }
+.btn-secondary { background: #eee; color: var(--text); }
+
+#view-preview .app-header { background: #1a1a2e; }
+.preview-body { padding: 12px 10px 80px; }
+
+.kintai-doc {
+  background: white;
+  border-radius: var(--radius);
+  padding: 18px 16px 14px;
+  box-shadow: 0 1px 6px rgba(0,0,0,.1);
+  font-family: 'MS Mincho', 'Yu Mincho', '游明朝', 'Hiragino Mincho ProN', serif;
+  overflow-x: auto;
 }
-.btn {
-  padding: 10px 32px;
-  font-size: 13pt;
-  font-family: inherit;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-  border: 2px solid;
-}
-.btn-print { background: #003399; color: white; border-color: #003399; }
-.btn-reset { background: white; color: #666; border-color: #999; }
-@media print {
-  body { background: white; padding: 0; }
-  .form-wrap { box-shadow: none; padding: 10mm 15mm; }
-  .btns { display: none; }
-  input, textarea { border-bottom-color: transparent !important; background: transparent !important; }
-}
+.doc-title { text-align: center; font-size: 20px; font-weight: bold; letter-spacing: .5em; margin-bottom: 10px; }
+.doc-header-row { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 10px; }
+.doc-badge { display: inline-block; border: 2px solid #000; padding: 1px 8px; font-weight: bold; font-size: 11px; margin-bottom: 0; }
+.doc-table { width: 100%; border-collapse: collapse; border: 2px solid #000; min-width: 320px; }
+.doc-table td { border: 1px solid #000; padding: 5px 7px; vertical-align: middle; font-size: 10px; }
+.doc-lbl { text-align: center; white-space: nowrap; width: 44px; background: #f8f8f8; font-size: 10px; }
+.doc-lbl-sm { text-align: center; white-space: nowrap; width: 38px; background: #f8f8f8; font-size: 9px; }
+.cat-all { line-height: 2; }
+.cat-item-disp { margin-right: 12px; }
+.cat-item-disp.selected { font-weight: bold; text-decoration: underline; }
+.period-lines { line-height: 2; }
+.reason-td { vertical-align: top; min-height: 56px; white-space: pre-wrap; }
+.mgr-td { width: 60px; vertical-align: top; text-align: center; font-size: 9px; }
+.doc-version { text-align: right; font-size: 7px; margin-top: 4px; color: #666; }
+
+.preview-actions { display: flex; gap: 10px; margin-top: 12px; }
+.preview-btn { flex: 1; padding: 12px; font-size: 14px; font-family: inherit; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; }
+.btn-edit { background: var(--primary-light); color: var(--primary); }
+.btn-delete { background: #fdecea; color: var(--danger); }
 </style>
 </head>
 <body>
-<div class="form-wrap">
-  <h1>勤　怠　届</h1>
+<div class="app">
 
-  <div class="header-row">
-    <div>所管長　宛</div>
-    <div class="app-date">
-      申請日
-      <input type="number" class="w-year" id="appY" placeholder="年">年
-      <input type="number" class="w-md"   id="appM" placeholder="月" min="1" max="12">月
-      <input type="number" class="w-md"   id="appD" placeholder="日" min="1" max="31">日
+  <div id="view-list" class="view active">
+    <div class="app-header">
+      <h1>勤　怠　届</h1>
+    </div>
+    <div class="list-body">
+      <div class="section-label">申請履歴</div>
+      <div id="entry-list"></div>
+      <div id="empty-state" class="empty-state" style="display:none">
+        <div class="empty-icon">📋</div>
+        <div class="empty-text">申請がまだありません<br>＋ボタンから新規申請してください</div>
+      </div>
+    </div>
+    <button class="fab" onclick="openModal()">＋</button>
+  </div>
+
+  <div id="view-preview" class="view">
+    <div class="app-header">
+      <h1>勤　怠　届</h1>
+      <button class="header-btn" onclick="showList()">← 一覧</button>
+    </div>
+    <div class="preview-body">
+      <div class="kintai-doc" id="kintai-doc-content"></div>
+      <div class="preview-actions">
+        <button class="preview-btn btn-edit" id="btn-edit">編集</button>
+        <button class="preview-btn btn-delete" id="btn-delete">削除</button>
+      </div>
     </div>
   </div>
 
-  <div class="badge">パート従業員</div>
-
-  <table>
-    <tbody>
-      <tr>
-        <td class="lbl" rowspan="2">所&emsp;管</td>
-        <td colspan="2"><input type="text" id="dept" value="岡山早島センター"></td>
-        <td class="lbl-sm">所管長</td>
-        <td><input type="text" id="mgr"></td>
-        <td class="lbl-sm">担&emsp;当</td>
-        <td><input type="text" id="staff"></td>
-      </tr>
-      <tr>
-        <td colspan="6"></td>
-      </tr>
-      <tr>
-        <td class="lbl">氏&emsp;名</td>
-        <td colspan="6">
-          No.&nbsp;<input type="text" id="empNo" style="width:180px">
-          &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;㊞
-        </td>
-      </tr>
-      <tr>
-        <td class="lbl" style="vertical-align:top;padding-top:8px;">区&emsp;分</td>
-        <td colspan="6">
-          <div class="cat-grid">
-            <label class="cat-item"><input type="radio" name="cat" value="1"><span>1. 有給休暇</span></label>
-            <label class="cat-item"><input type="radio" name="cat" value="2"><span>2. 欠勤</span></label>
-            <label class="cat-item"><input type="radio" name="cat" value="3"><span>3. 遅刻</span></label>
-            <label class="cat-item"><input type="radio" name="cat" value="4"><span>4. 早退</span></label>
-            <label class="cat-item"><input type="radio" name="cat" value="5"><span>5. 振替出勤</span></label>
-            <label class="cat-item"><input type="radio" name="cat" value="6"><span>6. 振替休暇</span></label>
-            <label class="cat-item"><input type="radio" name="cat" value="7"><span>7. 打刻忘れ</span></label>
-            <label class="cat-item"><input type="radio" name="cat" value="8"><span>8. 私用外出</span></label>
-            <label class="cat-item"><input type="radio" name="cat" value="9"><span>9. 打刻修正</span></label>
-            <label class="cat-item"><input type="radio" name="cat" value="10"><span>10. 勤務時間変更</span></label>
-            <label class="cat-item" style="grid-column:span 2;">
-              <input type="radio" name="cat" value="11"><span>11. その他（</span>
-              <input type="text" id="otherText" class="other-input" disabled>
-              <span>）</span>
-            </label>
+  <div class="modal-overlay" id="modal-overlay" onclick="overlayClick(event)">
+    <div class="modal" id="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <span class="modal-title" id="modal-title">新規申請</span>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="field-group">
+          <div class="field-label field-required">申請日</div>
+          <input type="date" class="field-input" id="f-appDate">
+        </div>
+        <div class="field-group">
+          <div class="field-label field-required">氏名</div>
+          <input type="text" class="field-input" id="f-name" placeholder="氏名を入力">
+        </div>
+        <div class="field-group">
+          <div class="field-label">社員番号</div>
+          <input type="text" class="field-input" id="f-empNo" placeholder="社員番号を入力">
+        </div>
+        <div class="field-group">
+          <div class="field-label field-required">区分</div>
+          <div class="cat-grid" id="cat-grid">
+            <input class="cat-radio" type="radio" name="cat" id="c1" value="1"><label class="cat-chip" for="c1">1. 有給休暇</label>
+            <input class="cat-radio" type="radio" name="cat" id="c2" value="2"><label class="cat-chip" for="c2">2. 欠勤</label>
+            <input class="cat-radio" type="radio" name="cat" id="c3" value="3"><label class="cat-chip" for="c3">3. 遅刻</label>
+            <input class="cat-radio" type="radio" name="cat" id="c4" value="4"><label class="cat-chip" for="c4">4. 早退</label>
+            <input class="cat-radio" type="radio" name="cat" id="c5" value="5"><label class="cat-chip" for="c5">5. 振替出勤</label>
+            <input class="cat-radio" type="radio" name="cat" id="c6" value="6"><label class="cat-chip" for="c6">6. 振替休暇</label>
+            <input class="cat-radio" type="radio" name="cat" id="c7" value="7"><label class="cat-chip" for="c7">7. 打刻忘れ</label>
+            <input class="cat-radio" type="radio" name="cat" id="c8" value="8"><label class="cat-chip" for="c8">8. 私用外出</label>
+            <input class="cat-radio" type="radio" name="cat" id="c9" value="9"><label class="cat-chip" for="c9">9. 打刻修正</label>
+            <input class="cat-radio" type="radio" name="cat" id="c10" value="10"><label class="cat-chip" for="c10">10. 勤務時間変更</label>
+            <input class="cat-radio" type="radio" name="cat" id="c11" value="11" style="display:none"><label class="cat-chip" for="c11" style="grid-column:span 2">11. その他</label>
           </div>
-        </td>
-      </tr>
-      <tr>
-        <td class="lbl" style="vertical-align:top;padding-top:10px;line-height:2.2;">
-          <div>期　間</div><div>日　時</div>
-        </td>
-        <td colspan="6" style="padding:8px 10px;">
-          <div class="period-row">
-            <input type="number" class="w-year" id="pfY" placeholder="年">年
-            <input type="number" class="w-md"   id="pfM" placeholder="月" min="1" max="12">月
-            <input type="number" class="w-md"   id="pfD" placeholder="日" min="1" max="31">日
-            <span class="tilde">～</span>
-            <input type="number" class="w-year" id="ptY" placeholder="年">年
-            <input type="number" class="w-md"   id="ptM" placeholder="月" min="1" max="12">月
-            <input type="number" class="w-md"   id="ptD" placeholder="日" min="1" max="31">日
-            （<input type="number" class="w-cnt" id="days" placeholder="0" min="0">日間）
+          <div class="other-field" id="other-field">
+            <input type="text" class="field-input" id="f-other" placeholder="その他の内容を入力">
           </div>
-          <div class="period-row">
-            <input type="number" class="w-hm" id="tfH" placeholder="時" min="0" max="23">時
-            <input type="number" class="w-hm" id="tfM" placeholder="分" min="0" max="59">分
-            <span class="tilde">～</span>
-            <input type="number" class="w-hm" id="ttH" placeholder="時" min="0" max="23">時
-            <input type="number" class="w-hm" id="ttM" placeholder="分" min="0" max="59">分
-            （<input type="number" class="w-cnt" id="hours" placeholder="0" min="0" step="0.5">時間）
+        </div>
+        <div class="field-group">
+          <div class="field-label">期間（日付）</div>
+          <div class="field-row">
+            <input type="date" class="field-input" id="f-dateFrom">
+            <span class="field-sep">〜</span>
+            <input type="date" class="field-input" id="f-dateTo">
           </div>
-          <div class="period-row subst" id="substRow" style="opacity:0.4;">
-            振替出勤日（
-            <input type="number" class="w-year" id="swY" placeholder="年">年
-            <input type="number" class="w-md"   id="swM" placeholder="月" min="1" max="12">月
-            <input type="number" class="w-md"   id="swD" placeholder="日" min="1" max="31">日
-            ）&ensp;振替休暇日（
-            <input type="number" class="w-year" id="slY" placeholder="年">年
-            <input type="number" class="w-md"   id="slM" placeholder="月" min="1" max="12">月
-            <input type="number" class="w-md"   id="slD" placeholder="日" min="1" max="31">日
-            ）
+          <div class="field-hint" id="days-hint"></div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">時間</div>
+          <div class="field-row">
+            <input type="time" class="field-input" id="f-timeFrom">
+            <span class="field-sep">〜</span>
+            <input type="time" class="field-input" id="f-timeTo">
           </div>
-        </td>
-      </tr>
-      <tr>
-        <td class="lbl">事&emsp;由</td>
-        <td class="reason-td" colspan="5">
-          <textarea class="reason" id="reason" placeholder="事由を入力してください"></textarea>
-        </td>
-        <td class="mgr-td">
-          <div class="mgr-lbl">管理担当</div>
-          <input type="text" id="mgrCharge">
-        </td>
-      </tr>
-    </tbody>
-  </table>
-
-  <div class="version">Ver.201810-1</div>
-
-  <div class="btns">
-    <button class="btn btn-print" onclick="window.print()">印刷</button>
-    <button class="btn btn-reset" onclick="resetForm()">リセット</button>
+          <div class="field-hint" id="hours-hint"></div>
+        </div>
+        <div class="cond-field" id="subst-fields">
+          <div class="field-group">
+            <div class="field-label">振替出勤日</div>
+            <input type="date" class="field-input" id="f-substWork">
+          </div>
+          <div class="field-group">
+            <div class="field-label">振替休暇日</div>
+            <input type="date" class="field-input" id="f-substLeave">
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">事由</div>
+          <textarea class="field-input" id="f-reason" placeholder="事由を入力してください"></textarea>
+        </div>
+        <div style="border-top: 1px solid var(--border); margin: 20px 0 16px; padding-top: 16px;">
+          <div class="field-label" style="font-size:12px; color: var(--primary); margin-bottom: 12px;">▼ 所管情報</div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">所管</div>
+          <input type="text" class="field-input" id="f-dept" placeholder="所管名">
+        </div>
+        <div class="field-row" style="gap:12px; margin-bottom:18px;">
+          <div style="flex:1">
+            <div class="field-label">所管長</div>
+            <input type="text" class="field-input" id="f-manager" placeholder="氏名">
+          </div>
+          <div style="flex:1">
+            <div class="field-label">担当</div>
+            <input type="text" class="field-input" id="f-staff" placeholder="氏名">
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">管理担当</div>
+          <input type="text" class="field-input" id="f-mgrCharge" placeholder="管理担当者名">
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" onclick="closeModal()">キャンセル</button>
+          <button class="btn btn-primary" onclick="submitForm()">確　定</button>
+        </div>
+      </div>
+    </div>
   </div>
+
 </div>
 
 <script>
-const today = new Date();
-document.getElementById('appY').value = today.getFullYear();
-document.getElementById('appM').value = today.getMonth() + 1;
-document.getElementById('appD').value = today.getDate();
+const CATS = ['','有給休暇','欠勤','遅刻','早退','振替出勤','振替休暇','打刻忘れ','私用外出','打刻修正','勤務時間変更','その他'];
+const CAT_ICONS = ['','🌸','😷','⏰','🏃','🔄','🔁','⚠️','🚶','🔊','📅','📝'];
 
-document.querySelectorAll('input[name=cat]').forEach(r => {
-  r.addEventListener('change', () => {
-    const v = parseInt(r.value);
-    document.getElementById('otherText').disabled = (v !== 11);
-    document.getElementById('substRow').style.opacity = (v === 5 || v === 6) ? '1' : '0.4';
-  });
-});
+let editingId = null;
 
-function resetForm() {
-  if (!confirm('入力内容をリセットしますか？')) return;
-  const today = new Date();
-  document.getElementById('appY').value = today.getFullYear();
-  document.getElementById('appM').value = today.getMonth() + 1;
-  document.getElementById('appD').value = today.getDate();
-  ['dept','mgr','staff','empNo','otherText','reason','mgrCharge'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.value = id === 'dept' ? '岡山早島センター' : '';
-  });
-  ['pfY','pfM','pfD','ptY','ptM','ptD','days','tfH','tfM','ttH','ttM','hours','swY','swM','swD','slY','slM','slD'].forEach(id => {
-    document.getElementById(id).value = '';
-  });
-  document.querySelectorAll('input[name=cat]').forEach(r => r.checked = false);
-  document.getElementById('otherText').disabled = true;
-  document.getElementById('substRow').style.opacity = '0.4';
+function getEntries() {
+  try { return JSON.parse(localStorage.getItem('kintai_entries') || '[]'); } catch { return []; }
 }
-</script>
+function saveEntries(list) {
+  localStorage.setItem('kintai_entries', JSON.stringify(list));
+}
+
+function showList() {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-list').classList.add('active');
+  renderList();
+}
+function showPreview(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-preview').classList.add('active');
+  renderPreview(id);
+}
+
+function renderList() {
+  const entries = getEntries().sort((a,b) => b.id - a.id);
+  const list = document.getElementById('entry-list');
+  const empty = document.getElementById('empty-state');
+  if (!entries.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  list.innerHTML = entries.map(e => {
+    const catNo = parseInt(e.category);
+    const dateStr = e.dateFrom ? fmtDate(e.dateFrom) + (e.dateTo && e.dateTo !== e.dateFrom ? ' 〜 ' + fmtDate(e.dateTo) : '') : '';
+    return `<div class="entry-card" onclick="showPreview(${e.id})"><div class="card-icon">${CAT_ICONS[catNo]||'📋'}</div><div class="card-body"><div class="card-cat">${catNo}. ${CATS[catNo]}${e.otherText?'（'+e.otherText+'）':''}</div><div class="card-meta">${e.name||'氏名未入力'} ／ ${fmtDate(e.appDate)}申請${dateStr?' ／ '+dateStr:''}</div></div><div class="card-arrow">›</div></div>`;
+  }).join('');
+}
+
+function openModal(id) {
+  editingId = id || null;
+  const d = id ? getEntries().find(e => e.id === id) : null;
+  document.getElementById('modal-title').textContent = id ? '編集' : '新規申請';
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('f-appDate').value   = d ? d.appDate : today;
+  document.getElementById('f-name').value      = d ? d.name : '';
+  document.getElementById('f-empNo').value     = d ? d.empNo : '';
+  document.getElementById('f-dateFrom').value  = d ? d.dateFrom : '';
+  document.getElementById('f-dateTo').value    = d ? d.dateTo : '';
+  document.getElementById('f-timeFrom').value  = d ? d.timeFrom : '';
+  document.getElementById('f-timeTo').value    = d ? d.timeTo : '';
+  document.getElementById('f-substWork').value  = d ? d.substWork : '';
+  document.getElementById('f-substLeave').value = d ? d.substLeave : '';
+  document.getElementById('f-reason').value    = d ? d.reason : '';
+  document.getElementById('f-dept').value      = d ? d.dept : '岡山早島センター';
+  document.getElementById('f-manager').value   = d ? d.manager : '';
+  document.getElementById('f-staff').value     = d ? d.staff : '';
+  document.getElementById('f-mgrCharge').value = d ? d.mgrCharge : '';
+  document.getElementById('f-other').value     = d ? (d.otherText||'') : '';
+  document.querySelectorAll('input[name=cat]').forEach(r => { r.checked = d ? r.value === String(d.category) : false; });
+  updateCatUI(); updateDaysHint(); updateHoursHint();
+  document.getElementById('modal-overlay').classList.add('open');
+  document.getElementById('modal').scrollTop = 0;
+}
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+function overlayClick(e) { if (e.target === document.getElementById('modal-overlay')) closeModal(); }
+
+function updateCatUI() {
+  const val = document.querySelector('input[name=cat]:checked')?.value;
+  document.getElementById('other-field').classList.toggle('visible', val === '11');
+  document.getElementById('subst-fields').classList.toggle('visible', val === '5' || val === '6');
+}
+document.querySelectorAll('input[name=cat]').forEach(r => r.addEventListener('change', updateCatUI));
+
+function updateDaysHint() {
+  const from = document.getElementById('f-dateFrom').value;
+  const to   = document.getElementById('f-dateTo').value;
+  const hint = document.getElementById('days-hint');
+  if (from && to && from <= to) {
+    hint.textContent = '→ ' + (Math.round((new Date(to)-new Date(from))/86400000)+1) + ' 日間';
+  } else { hint.textContent = ''; }
+}
+function updateHoursHint() {
+  const from = document.getElementById('f-timeFrom').value;
+  const to   = document.getElementById('f-timeTo').value;
+  const hint = document.getElementById('hours-hint');
+  if (from && to && from < to) {
+    const [fh,fm]=from.split(':').map(Number), [th,tm]=to.split(':').map(Number);
+    const mins=(th*60+tm)-(fh*60+fm);
+    hint.textContent = '→ '+Math.floor(mins/60)+'時間'+(mins%60?mins%60+'分':'');
+  } else { hint.textContent = ''; }
+}
+document.getElementById('f-dateFrom').addEventListener('change', updateDaysHint);
+document.getElementById('f-dateTo').addEventListener('change', updateDaysHint);
+document.getElementById('f-timeFrom').addEventListener('change', updateHoursHint);
+document.getElementById('f-timeTo').addEventListener('change', updateHoursHint);
+
+function submitForm() {
+  const name = document.getElementById('f-name').value.trim();
+  const cat  = document.querySelector('input[name=cat]:checked')?.value;
+  if (!name) { alert('氏名を入力してください'); return; }
+  if (!cat)  { alert('区分を選択してください'); return; }
+  const entry = {
+    id: editingId || Date.now(),
+    appDate:    document.getElementById('f-appDate').value,
+    name,
+    empNo:      document.getElementById('f-empNo').value.trim(),
+    category:   parseInt(cat),
+    otherText:  document.getElementById('f-other').value.trim(),
+    dateFrom:   document.getElementById('f-dateFrom').value,
+    dateTo:     document.getElementById('f-dateTo').value,
+    timeFrom:   document.getElementById('f-timeFrom').value,
+    timeTo:     document.getElementById('f-timeTo').value,
+    substWork:  document.getElementById('f-substWork').value,
+    substLeave: document.getElementById('f-substLeave').value,
+    reason:     document.getElementById('f-reason').value.trim(),
+    dept:       document.getElementById('f-dept').value.trim(),
+    manager:    document.getElementById('f-manager').value.trim(),
+    staff:      document.getElementById('f-staff').value.trim(),
+    mgrCharge:  document.getElementById('f-mgrCharge').value.trim(),
+  };
+  const entries = getEntries().filter(e => e.id !== entry.id);
+  entries.push(entry);
+  saveEntries(entries);
+  closeModal();
+  showPreview(entry.id);
+}
+
+function renderPreview(id) {
+  const entry = getEntries().find(e => e.id === id);
+  if (!entry) { showList(); return; }
+  const catNo = entry.category;
+  const from = entry.dateFrom ? fmtDate(entry.dateFrom) : '　　　　';
+  const to   = entry.dateTo   ? fmtDate(entry.dateTo)   : '　　　　';
+  const days = calcDays(entry.dateFrom, entry.dateTo);
+  const tf = entry.timeFrom || '　　';
+  const tt = entry.timeTo   || '　　';
+  const hrs = calcHours(entry.timeFrom, entry.timeTo);
+  const catRow = [1,2,3,4,5,6,7,8,9,10,11].map(n => {
+    const label = n===11 && entry.otherText ? `11.その他（${entry.otherText}）` : `${n}.${CATS[n]}`;
+    return `<span class="cat-item-disp${n===catNo?' selected':''}">${label}</span>`;
+  }).join('');
+  const substRow = (catNo===5||catNo===6) ? `<div>振替出勤日（${entry.substWork?fmtDate(entry.substWork):'　　　　'}）　振替休暇日（${entry.substLeave?fmtDate(entry.substLeave):'　　　　'}）</div>` : '';
+  document.getElementById('kintai-doc-content').innerHTML = `
+    <div class="doc-title">勤　怠　届</div>
+    <div class="doc-header-row"><span>所管長　宛</span><span>申請日　${fmtDate(entry.appDate)}</span></div>
+    <div class="doc-badge">パート従業員</div>
+    <table class="doc-table"><tbody>
+      <tr><td class="doc-lbl">氏&emsp;名</td><td colspan="6">No.&nbsp;${entry.empNo||''}&emsp;&emsp;&emsp;<strong>${entry.name}</strong>&emsp;&emsp;㊞</td></tr>
+      <tr><td class="doc-lbl" style="vertical-align:top;padding-top:6px;">区&emsp;分</td><td colspan="6"><div class="cat-all">${catRow}</div></td></tr>
+      <tr>
+        <td class="doc-lbl" style="vertical-align:top;padding-top:6px;line-height:2;"><div>期　間</div><div>日　時</div></td>
+        <td colspan="6"><div class="period-lines"><div>${from}　〜　${to}（${days}日間）</div><div>${tf}　〜　${tt}（${hrs}）</div>${substRow}</div></td>
+      </tr>
+      <tr><td class="doc-lbl">事&emsp;由</td><td class="reason-td" colspan="5">${escHtml(entry.reason||'')}</td><td class="mgr-td">管理担当<br>${escHtml(entry.mgrCharge||'')}</td></tr>
+      <tr><td class="doc-lbl" rowspan="2">所&emsp;管</td><td colspan="2">${escHtml(entry.dept||'')}</td><td class="doc-lbl-sm">所管長</td><td>${escHtml(entry.manager||'')}</td><td class="doc-lbl-sm">担&emsp;当</td><td>${escHtml(entry.staff||'')}</td></tr>
+      <tr><td colspan="6"></td></tr>
+    </tbody></table>
+    <div class="doc-version">Ver.201810-1</div>`;
+  document.getElementById('btn-edit').onclick   = () => openModal(id);
+  document.getElementById('btn-delete').onclick = () => deleteEntry(id);
+}
+
+function deleteEntry(id) {
+  if (!confirm('この申請を削除しますか？')) return;
+  saveEntries(getEntries().filter(e => e.id !== id));
+  showList();
+}
+
+function fmtDate(s) {
+  if (!s) return '';
+  const [y,m,d] = s.split('-');
+  return `${y}年${parseInt(m)}月${parseInt(d)}日`;
+}
+function calcDays(from, to) {
+  if (!from||!to||from>to) return '';
+  return Math.round((new Date(to)-new Date(from))/86400000)+1;
+}
+function calcHours(from, to) {
+  if (!from||!to||from>=to) return '';
+  const [fh,fm]=from.split(':').map(Number),[th,tm]=to.split(':').map(Number);
+  const mins=(th*60+tm)-(fh*60+fm);
+  if (mins<=0) return '';
+  return `${Math.floor(mins/60)}時間${mins%60?mins%60+'分':''}`;
+}
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+
+renderList();
+<\/script>
 </body>
 </html>

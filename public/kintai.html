@@ -190,6 +190,22 @@ textarea.field-input { height: 80px; resize: none; }
 .btn-edit { background: var(--primary-light); color: var(--primary); }
 .btn-delete { background: #fdecea; color: var(--danger); }
 
+/* ── Login view ─────────────────────── */
+.login-wrap { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100dvh; padding:24px; background:var(--primary); }
+.login-card { background:white; border-radius:16px; padding:28px 24px; width:100%; max-width:360px; box-shadow:0 8px 32px rgba(0,0,51,.25); }
+.login-title { text-align:center; font-size:22px; font-weight:bold; letter-spacing:.5em; color:var(--primary); margin-bottom:24px; }
+.login-tabs { display:flex; border-bottom:2px solid var(--border); margin-bottom:20px; }
+.login-tab { flex:1; padding:10px; font-size:14px; font-weight:bold; background:none; border:none; cursor:pointer; color:var(--muted); border-bottom:3px solid transparent; margin-bottom:-2px; touch-action:manipulation; }
+.login-tab.active { color:var(--primary); border-bottom-color:var(--primary); }
+.login-panel { display:none; }
+.login-panel.active { display:block; }
+.login-hint { font-size:12px; margin-bottom:12px; min-height:18px; }
+.header-user { font-size:11px; opacity:.85; max-width:80px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+/* ── Admin password section ──────────── */
+.admin-pw-section { background:#f0f4ff; border-radius:var(--radius); padding:16px; margin-top:20px; }
+.admin-pw-title { font-size:12px; font-weight:bold; color:var(--primary); margin-bottom:12px; }
+
 /* ── Employee management ─────────────── */
 .emp-add-card {
   background: white; border-radius: var(--radius);
@@ -235,13 +251,50 @@ textarea.field-input { height: 80px; resize: none; }
 <body>
 <div class="app">
 
+  <!-- ══════════ LOGIN VIEW ══════════ -->
+  <div id="view-login" class="view active">
+    <div class="login-wrap">
+      <div class="login-card">
+        <div class="login-title">勤　怠　届</div>
+        <div class="login-tabs">
+          <button class="login-tab active" id="tab-emp" onclick="switchLoginTab('emp')">社員ログイン</button>
+          <button class="login-tab" id="tab-admin" onclick="switchLoginTab('admin')">管理者</button>
+        </div>
+        <!-- 社員パネル -->
+        <div class="login-panel active" id="panel-emp">
+          <div class="field-group">
+            <div class="field-label">社員番号</div>
+            <input type="text" class="field-input" id="login-empNo" placeholder="社員番号を入力" inputmode="numeric">
+          </div>
+          <div class="field-group">
+            <div class="field-label">パスワード</div>
+            <input type="password" class="field-input" id="login-pass" placeholder="パスワードを入力">
+          </div>
+          <div class="login-hint" id="login-hint" style="color:var(--danger);"></div>
+          <button class="btn btn-primary" style="width:100%;" onclick="doLogin()">ログイン</button>
+        </div>
+        <!-- 管理者パネル -->
+        <div class="login-panel" id="panel-admin">
+          <div class="field-group">
+            <div class="field-label">管理者パスワード</div>
+            <input type="password" class="field-input" id="login-admin-pass" placeholder="管理者パスワードを入力">
+          </div>
+          <div class="login-hint" id="login-admin-hint" style="color:var(--danger);"></div>
+          <button class="btn btn-primary" style="width:100%;" onclick="doAdminLogin()">管理者ログイン</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ══════════ LIST VIEW ══════════ -->
-  <div id="view-list" class="view active">
+  <div id="view-list" class="view">
     <div class="app-header">
       <h1>勤　怠　届</h1>
-      <div style="display:flex;gap:6px;">
-        <button class="header-btn" onclick="showView('csv')">CSV</button>
-        <button class="header-btn" onclick="showView('employees')">従業員管理</button>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <span class="header-user" id="header-user"></span>
+        <button class="header-btn" id="btn-csv" onclick="showView('csv')" style="display:none;">CSV</button>
+        <button class="header-btn" id="btn-emp-mgmt" onclick="showView('employees')" style="display:none;">従業員管理</button>
+        <button class="header-btn" onclick="doLogout()">ログアウト</button>
       </div>
     </div>
     <div class="list-body">
@@ -309,6 +362,20 @@ textarea.field-input { height: 80px; resize: none; }
       </div>
       <div class="section-label" style="margin-top:16px;">登録済み従業員</div>
       <div id="emp-list"></div>
+      <!-- 管理者パスワード変更 -->
+      <div class="admin-pw-section">
+        <div class="admin-pw-title">🔐 管理者パスワード変更</div>
+        <div class="field-group">
+          <div class="field-label">新しいパスワード</div>
+          <input type="password" class="field-input" id="new-admin-pass" placeholder="新しい管理者パスワード">
+        </div>
+        <div class="field-group">
+          <div class="field-label">確認</div>
+          <input type="password" class="field-input" id="new-admin-pass2" placeholder="もう一度入力">
+        </div>
+        <div class="field-hint" id="admin-pw-hint"></div>
+        <button class="btn btn-primary" style="margin-top:8px;" onclick="changeAdminPass()">パスワードを変更</button>
+      </div>
     </div>
   </div>
 
@@ -469,9 +536,80 @@ function getEmployees() {
 function saveEmployees(list) {
   localStorage.setItem('kintai_employees', JSON.stringify(list));
 }
+function getAdminPass() { return localStorage.getItem('kintai_admin_pass') || 'admin1234'; }
+function setAdminPass(p) { localStorage.setItem('kintai_admin_pass', p); }
+
+// ── Session ───────────────────────────────
+function getSession() {
+  try { return JSON.parse(sessionStorage.getItem('kintai_session') || 'null'); } catch { return null; }
+}
+function setSession(data) { sessionStorage.setItem('kintai_session', JSON.stringify(data)); }
+function clearSession() { sessionStorage.removeItem('kintai_session'); }
+function isAdmin() { const s = getSession(); return !!(s && s.isAdmin); }
+
+// ── Login ─────────────────────────────────
+function switchLoginTab(tab) {
+  document.getElementById('tab-emp').classList.toggle('active', tab === 'emp');
+  document.getElementById('tab-admin').classList.toggle('active', tab === 'admin');
+  document.getElementById('panel-emp').classList.toggle('active', tab === 'emp');
+  document.getElementById('panel-admin').classList.toggle('active', tab === 'admin');
+}
+function doLogin() {
+  const empNo = document.getElementById('login-empNo').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  const hint  = document.getElementById('login-hint');
+  if (!empNo) { hint.textContent = '社員番号を入力してください'; return; }
+  const emp = getEmployees().find(e => e.empNo === empNo);
+  if (!emp) { hint.textContent = '社員番号が登録されていません'; return; }
+  if (emp.password && emp.password !== pass) { hint.textContent = 'パスワードが違います'; return; }
+  hint.textContent = '';
+  setSession({ empNo: emp.empNo, name: emp.name, isAdmin: false });
+  applySession();
+  showView('list');
+}
+function doAdminLogin() {
+  const pass = document.getElementById('login-admin-pass').value;
+  const hint = document.getElementById('login-admin-hint');
+  if (pass !== getAdminPass()) { hint.textContent = 'パスワードが違います'; return; }
+  hint.textContent = '';
+  setSession({ isAdmin: true, name: '管理者' });
+  applySession();
+  showView('list');
+}
+function doLogout() {
+  if (!confirm('ログアウトしますか？')) return;
+  clearSession();
+  document.getElementById('login-empNo').value = '';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-admin-pass').value = '';
+  document.getElementById('login-hint').textContent = '';
+  document.getElementById('login-admin-hint').textContent = '';
+  showView('login');
+}
+function applySession() {
+  const s = getSession();
+  if (!s) return;
+  document.getElementById('header-user').textContent = s.isAdmin ? '管理者' : s.name;
+  document.getElementById('btn-csv').style.display     = s.isAdmin ? '' : 'none';
+  document.getElementById('btn-emp-mgmt').style.display = s.isAdmin ? '' : 'none';
+}
+function changeAdminPass() {
+  const p1   = document.getElementById('new-admin-pass').value;
+  const p2   = document.getElementById('new-admin-pass2').value;
+  const hint = document.getElementById('admin-pw-hint');
+  if (!p1) { hint.textContent = '新しいパスワードを入力してください'; hint.style.color='var(--danger)'; return; }
+  if (p1 !== p2) { hint.textContent = 'パスワードが一致しません'; hint.style.color='var(--danger)'; return; }
+  setAdminPass(p1);
+  document.getElementById('new-admin-pass').value = '';
+  document.getElementById('new-admin-pass2').value = '';
+  hint.textContent = '✓ パスワードを変更しました';
+  hint.style.color = '#2d7a2d';
+}
 
 // ── Views ─────────────────────────────────
 function showView(name) {
+  if (name !== 'login' && !getSession()) { showView('login'); return; }
+  if ((name === 'csv' || name === 'employees') && !isAdmin()) { showView('list'); return; }
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-' + name).classList.add('active');
   if (name === 'list') renderList();
@@ -556,7 +694,11 @@ function lookupEmployee(empNo) {
 
 // ── List rendering ────────────────────────
 function renderList() {
-  const entries = getEntries().sort((a,b) => b.id - a.id);
+  const session = getSession();
+  let entries = getEntries().sort((a,b) => b.id - a.id);
+  if (session && !session.isAdmin) {
+    entries = entries.filter(e => e.empNo === session.empNo);
+  }
   const list = document.getElementById('entry-list');
   const empty = document.getElementById('empty-state');
   if (!entries.length) {
@@ -588,10 +730,20 @@ function openModal(id) {
 
   document.getElementById('modal-title').textContent = id ? '編集' : '新規申請';
 
+  const session = getSession();
   const today = new Date().toISOString().slice(0,10);
   document.getElementById('f-appDate').value  = d ? d.appDate : today;
-  document.getElementById('f-name').value     = d ? d.name : '';
-  document.getElementById('f-empNo').value    = d ? d.empNo : '';
+
+  // セッションから氏名・番号を自動入力（非管理者の新規申請時）
+  const autoFill = !id && session && !session.isAdmin;
+  document.getElementById('f-name').value  = d ? d.name  : (autoFill ? session.name  : '');
+  document.getElementById('f-empNo').value = d ? d.empNo : (autoFill ? session.empNo : '');
+  const lockIdentity = autoFill;
+  document.getElementById('f-name').readOnly  = lockIdentity;
+  document.getElementById('f-empNo').readOnly = lockIdentity;
+  document.getElementById('f-name').style.background  = lockIdentity ? '#f0f0f0' : '';
+  document.getElementById('f-empNo').style.background = lockIdentity ? '#f0f0f0' : '';
+
   document.getElementById('f-dateFrom').value = d ? d.dateFrom : '';
   document.getElementById('f-dateTo').value   = d ? d.dateTo : '';
   document.getElementById('f-timeFrom').value = d ? d.timeFrom : '';
@@ -616,9 +768,11 @@ function openModal(id) {
 
   const hint = document.getElementById('emp-hint');
   if (hint) { hint.textContent = ''; }
-  document.getElementById('f-name').style.background = '';
+  if (!lockIdentity) { document.getElementById('f-name').style.background = ''; }
   document.getElementById('f-password').value = '';
-  document.getElementById('pw-field').classList.remove('visible');
+  // ログイン済み社員はパスワード欄不要（認証済み）
+  const needPwField = !session || session.isAdmin;
+  document.getElementById('pw-field').classList.toggle('visible', false);
   document.getElementById('pw-hint').textContent = '';
   document.getElementById('modal-overlay').classList.add('open');
   document.getElementById('modal').scrollTop = 0;
@@ -676,22 +830,26 @@ function submitForm() {
   if (!name) { alert('氏名を入力してください'); return; }
   if (!cat)  { alert('区分を選択してください'); return; }
 
-  const empRecord = getEmployees().find(e => e.empNo === empNo);
-  if (empRecord && empRecord.password) {
-    const entered = document.getElementById('f-password').value;
-    if (!entered) {
-      document.getElementById('pw-field').classList.add('visible');
-      document.getElementById('pw-hint').textContent = '⚠ パスワードを入力してください';
-      document.getElementById('pw-hint').style.color = 'var(--danger)';
-      document.getElementById('f-password').focus();
-      return;
-    }
-    if (entered !== empRecord.password) {
-      document.getElementById('pw-hint').textContent = '✗ パスワードが違います';
-      document.getElementById('pw-hint').style.color = 'var(--danger)';
-      document.getElementById('f-password').value = '';
-      document.getElementById('f-password').focus();
-      return;
+  // ログイン済みはパスワードチェック不要（認証済み）
+  const session = getSession();
+  if (!session || session.isAdmin) {
+    const empRecord = getEmployees().find(e => e.empNo === empNo);
+    if (empRecord && empRecord.password) {
+      const entered = document.getElementById('f-password').value;
+      if (!entered) {
+        document.getElementById('pw-field').classList.add('visible');
+        document.getElementById('pw-hint').textContent = '⚠ パスワードを入力してください';
+        document.getElementById('pw-hint').style.color = 'var(--danger)';
+        document.getElementById('f-password').focus();
+        return;
+      }
+      if (entered !== empRecord.password) {
+        document.getElementById('pw-hint').textContent = '✗ パスワードが違います';
+        document.getElementById('pw-hint').style.color = 'var(--danger)';
+        document.getElementById('f-password').value = '';
+        document.getElementById('f-password').focus();
+        return;
+      }
     }
   }
 
@@ -925,7 +1083,11 @@ function escHtml(s) {
 }
 
 // ── Init ──────────────────────────────────
-renderList();
+(function init() {
+  const s = getSession();
+  if (s) { applySession(); showView('list'); }
+  // else: view-login is already active in HTML
+})();
 </script>
 </body>
 </html>

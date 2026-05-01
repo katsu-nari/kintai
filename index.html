@@ -18,6 +18,7 @@
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 body { font-family: 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
+button, label, a, input, select, textarea { touch-action: manipulation; }
 
 /* ── Layout ─────────────────────────── */
 .app { max-width: 600px; margin: 0 auto; min-height: 100dvh; position: relative; }
@@ -52,6 +53,7 @@ body { font-family: 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif; backgrou
   gap: 12px;
   border-left: 4px solid var(--primary);
   transition: transform .1s;
+  touch-action: manipulation;
 }
 .entry-card:active { transform: scale(.98); background: #f5f8ff; }
 .card-icon { width: 40px; height: 40px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 13px; flex-shrink: 0; }
@@ -87,6 +89,7 @@ body { font-family: 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif; backgrou
   position: fixed; inset: 0;
   background: rgba(0,0,0,.55);
   z-index: 200;
+  touch-action: none;
   align-items: flex-end;
   justify-content: center;
 }
@@ -98,6 +101,9 @@ body { font-family: 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif; backgrou
   padding: 0 0 32px;
   max-height: 92dvh;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
   animation: slideUp .25s ease;
 }
 @keyframes slideUp { from { transform: translateY(60px); opacity: 0; } to { transform: none; opacity: 1; } }

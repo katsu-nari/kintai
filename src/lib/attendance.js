@@ -8,7 +8,7 @@ export async function getUserByCode(employeeCode) {
     .from('users')
     .select('id, name, employee_code')
     .eq('employee_code', employeeCode)
-    .single()
+    .maybeSingle()
 
   if (error) return { user: null, error }
   return { user: data, error: null }
